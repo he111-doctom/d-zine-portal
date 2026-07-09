@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — D'zine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+        .sidebar {
+            margin: 16px;
+            margin-right: 0;
+            border-radius: 28px;
+            padding: 24px 16px;
+            position: sticky;
+            top: 16px;
+            height: calc(100vh - 32px);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 18px 50px -20px rgba(53,49,110,0.35);
+            background: rgba(255,255,255,0.62);
+            backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid rgba(255,255,255,0.75);
+        }
+        .brand { display: flex; align-items: center; gap: 12px; padding: 0 8px; }
+        .brand .mark {
+            width: 38px; height: 38px; border-radius: 12px; flex: none;
+            background: linear-gradient(135deg, #7b6ef0, #9b76f0);
+            display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 18px;
+            box-shadow: 0 8px 18px -6px rgba(123,110,240,0.7);
+        }
+        .brand .name { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 19px; }
+        .brand .sub { font-size: 10px; letter-spacing: .22em; color: #929bb0; font-weight: 600; margin-top: 3px; }
+        .nav-label { font-size: 10.5px; letter-spacing: .18em; font-weight: 700; color: #929bb0; padding: 0 12px; margin-top: 8px; }
+        .nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+            border-radius: 12px; cursor: pointer; color: #5b6478; font-size: 14px; font-weight: 500;
+            border: 1px solid transparent; transition: all .18s;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.55); color: #1d2433; }
+        .nav-item.active { background: rgba(255,255,255,0.82); color: #1d2433; font-weight: 600; border-color: rgba(255,255,255,0.75); box-shadow: 0 6px 16px -10px rgba(53,49,110,0.5); }
+        .nav-item .ico { font-size: 18px; flex: none; }
+        .nav-item .lbl { flex: 1; }
+        .nav-item .badge {
+            font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .badge.locked { background: #eef0f4; color: #9aa3b8; }
+        .badge.pending { background: #fdeede; color: #a4661f; }
+        .badge.in-review { background: #dbe7fb; color: #2f5fae; }
+        .badge.approved { background: #dcf3e8; color: #1d8d59; }
+        .side-progress {
+            padding: 16px; border-radius: 20px; background: rgba(255,255,255,0.82); border: 1px solid rgba(255,255,255,0.75);
+        }
+        .side-progress .pct { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 26px; line-height: 1; }
+        .side-progress .cap { font-size: 11.5px; color: #5b6478; margin-top: 2px; }
+        .bar { height: 7px; border-radius: 999px; background: rgba(123,110,240,0.16); margin-top: 12px; overflow: hidden; }
+        .bar > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #7b6ef0, #9b76f0); transition: width .5s ease; }
+        .user-section {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 12px; border-top: 1px solid rgba(29,36,51,0.08);
+        }
+        .user-chip {
+            display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 999px;
+            box-shadow: 0 10px 30px -16px rgba(53,49,110,0.28); border: 1px solid rgba(255,255,255,0.75);
+        }
+        .user-chip .av {
+            width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+            font-weight: 700; font-size: 12px; background: linear-gradient(135deg, #5b8def, #7b6ef0);
+        }
+        .user-chip .nm { font-size: 13px; font-weight: 600; }
+        .btn-quiet {
+            background: transparent; color: #5b6478; padding: 10px 14px; border: 0; cursor: pointer; font-weight: 500;
+            border-radius: 8px; transition: all .2s; font-size: 13px;
+        }
+        .btn-quiet:hover { color: #1d2433; background: rgba(255,255,255,0.5); }
+        .main { padding: 16px 24px 48px 24px; min-width: 0; }
+        .topbar {
+            display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
+        }
+        .topbar h1 { font-size: 26px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .topbar .crumb { font-size: 12.5px; color: #5b6478; margin-top: 2px; }
+        .topbar .spacer { flex: 1; }
+        .search {
+            display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px;
+            width: 220px; color: #929bb0; font-size: 13px; box-shadow: 0 10px 30px -16px rgba(53,49,110,0.28);
+            background: rgba(255,255,255,0.62); border: 1px solid rgba(255,255,255,0.75);
+        }
+        .search input { border: 0; background: transparent; outline: none; font-family: inherit; font-size: 13px; color: #1d2433; width: 100%; }
+        .card {
+            border-radius: 20px; padding: 24px; box-shadow: 0 10px 30px -16px rgba(53,49,110,0.28);
+            background: rgba(255,255,255,0.62); backdrop-filter: blur(22px) saturate(140%); border: 1px solid rgba(255,255,255,0.75);
+            margin-bottom: 16px;
+        }
+        .grid { display: grid; gap: 16px; }
+        .cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .muted { color: #5b6478; }
+        .tiny { font-size: 12px; }
+        .welcome {
+            position: relative; overflow: hidden; color: #fff; border: 0;
+            background: linear-gradient(120deg,#6e7ff2 0%,#8b6ef0 50%,#a878ee 100%);
+        }
+        .welcome::after {
+            content: ""; position: absolute; right: -60px; top: -60px; width: 240px; height: 240px; border-radius: 50%;
+            background: rgba(255,255,255,0.16);
+        }
+        .welcome h2 { color: #fff; font-size: 24px; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .welcome .eyebrow { font-size: 11px; letter-spacing: .2em; font-weight: 700; opacity: .85; text-transform: uppercase; }
+        .welcome .meta { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
+        .welcome .meta .k { font-size: 11px; opacity: .8; text-transform: uppercase; letter-spacing: .1em; }
+        .welcome .meta .v { font-size: 15px; font-weight: 600; margin-top: 3px; }
+        .stat {
+            border-radius: 14px; padding: 16px; background: rgba(255,255,255,0.82); border: 1px solid rgba(255,255,255,0.75);
+        }
+        .stat .k { font-size: 11.5px; color: #5b6478; font-weight: 500; }
+        .stat .v { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 26px; margin-top: 4px; }
+        .feed { display: flex; flex-direction: column; gap: 2px; }
+        .fe {
+            display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(29,36,51,0.08);
+        }
+        .fe:last-child { border-bottom: 0; }
+        .fe .ai {
+            width: 34px; height: 34px; border-radius: 10px; flex: none; display: grid; place-items: center;
+            background: rgba(123,110,240,0.12); color: #7b6ef0; font-size: 16px;
+        }
+        .fe .at { font-size: 13.5px; }
+        .fe .am { font-size: 11.5px; color: #929bb0; margin-top: 1px; }
+        .timeline-container { margin-top: 8px; }
+        .timeline-item {
+            display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(29,36,51,0.08);
+        }
+        .timeline-item:last-child { border-bottom: 0; }
+        @media (max-width: 920px) {
+            .app { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main { padding: 16px; }
+            .search { display: none; }
+        }
+        @media (max-width: 560px) {
+            .cols-3 { grid-template-columns: 1fr; }
+            .topbar h1 { font-size: 21px; }
+        }
+    </style>
+    <script src="../assets/js/config.js"></script>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="mark">D</div>
+                <div>
+                    <div class="name">D'zine</div>
+                    <div class="sub">BRAND STUDIO</div>
+                </div>
+            </div>
+            <div class="nav-label">PROJECT</div>
+            <nav class="nav">
+                <div class="nav-item active" data-page="dashboard">
+                    <span class="ico">📊</span><span class="lbl">Dashboard</span>
+                </div>
+                <div class="nav-item" data-page="questionnaire">
+                    <span class="ico">📋</span><span class="lbl">Questionnaire</span>
+                    <span class="badge pending">Pending</span>
+                </div>
+                <div class="nav-item" data-page="color">
+                    <span class="ico">🎨</span><span class="lbl">Color Selection</span>
+                    <span class="badge locked">Locked</span>
+                </div>
+                <div class="nav-item" data-page="logo">
+                    <span class="ico">✍️</span><span class="lbl">Logo Design</span>
+                    <span class="badge locked">Locked</span>
+                </div>
+                <div class="nav-item" data-page="menu">
+                    <span class="ico">📄</span><span class="lbl">Menu Design</span>
+                    <span class="badge locked">Locked</span>
+                </div>
+                <div class="nav-item" data-page="brochure">
+                    <span class="ico">📘</span><span class="lbl">Brochure</span>
+                    <span class="badge locked">Locked</span>
+                </div>
+                <div class="nav-item" data-page="social">
+                    <span class="ico">📱</span><span class="lbl">Social Media</span>
+                    <span class="badge locked">Locked</span>
+                </div>
+                <div class="nav-item" data-page="packaging">
+                    <span class="ico">📦</span><span class="lbl">Packaging</span>
+                    <span class="badge locked">Locked</span>
+                </div>
+                <div class="nav-item" data-page="deliverables">
+                    <span class="ico">🎯</span><span class="lbl">Deliverables</span>
+                </div>
+            </nav>
+            <div class="side-progress">
+                <div class="pct" id="progressPct">0%</div>
+                <div class="cap">project completion</div>
+                <div class="bar"><span id="progressBar" style="width:0%"></span></div>
+            </div>
+            <div class="user-section">
+                <div class="user-chip">
+                    <div class="av" id="userAv">?</div>
+                    <div class="nm" id="userNm">Guest</div>
+                </div>
+                <button class="btn-quiet" id="logoutBtn">Sign Out</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <div class="crumb">D'zine Brand Studio · My Project</div>
+                    <h1>Dashboard</h1>
+                </div>
+                <div class="spacer"></div>
+                <div class="search">
+                    <span>🔍</span>
+                    <input placeholder="Search project…" />
+                </div>
+            </header>
+
+            <div id="pageContent">
+                <div class="card welcome">
+                    <div class="eyebrow">Welcome back</div>
+                    <h2 id="welcomeName">Guest</h2>
+                    <div class="meta">
+                        <div><div class="k">Project</div><div class="v" id="projectName">Brand Identity Project</div></div>
+                        <div><div class="k">Current stage</div><div class="v" id="currentStage">Questionnaire</div></div>
+                        <div><div class="k">Studio</div><div class="v">D'zine Brand Studio</div></div>
+                    </div>
+                </div>
+
+                <div class="grid cols-3" style="margin-top:16px">
+                    <div class="stat"><div class="k">Stages Completed</div><div class="v" id="stagesCompleted">0/7</div></div>
+                    <div class="stat"><div class="k">In Review</div><div class="v" id="inReview">0</div></div>
+                    <div class="stat"><div class="k">Assets Uploaded</div><div class="v" id="assetsUploaded">0</div></div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">📋 Project Timeline</div>
+                    <div class="timeline-container" id="timelineContainer"></div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">📰 Activity Feed</div>
+                    <div class="feed" id="activityFeed">
+                        <div class="fe">
+                            <div class="ai">✨</div>
+                            <div><div class="at">Welcome to D'zine! Start by completing the questionnaire.</div><div class="am">Just now</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ============================================
+        // COMPLETE DASHBOARD - NO EXTERNAL DEPENDENCIES
+        // ============================================
+        
+        // Get user from localStorage
+        function getUser() {
+            try {
+                const data = localStorage.getItem('user');
+                if (!data) return null;
+                return JSON.parse(data);
+            } catch(e) {
+                return null;
+            }
+        }
+
+        // Get token
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Check if logged in
+        function isLoggedIn() {
+            return !!getToken() && !!getUser();
+        }
+
+        // LOGOUT - Clears everything
+        function logout() {
+            console.log('🚪 Logging out...');
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Load user data
+        function loadUserData() {
+            const user = getUser();
+            if (user) {
+                const name = user.full_name || 'Demo User';
+                const initial = name.substring(0, 2).toUpperCase();
+                document.getElementById('userNm').textContent = name;
+                document.getElementById('userAv').textContent = initial;
+                document.getElementById('welcomeName').textContent = name;
+            }
+        }
+
+        // Update dashboard with stages
+        function updateDashboard(stages) {
+            const completed = Object.values(stages).filter(s => s === 'approved').length;
+            const total = Object.keys(stages).length;
+            const pct = Math.round((completed / total) * 100);
+            
+            document.getElementById('progressPct').textContent = pct + '%';
+            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('stagesCompleted').textContent = completed + '/' + total;
+            
+            const inReview = Object.values(stages).filter(s => s === 'in_review').length;
+            document.getElementById('inReview').textContent = inReview;
+            
+            updateBadges(stages);
+            updateTimeline(stages);
+            updateCurrentStage(stages);
+        }
+
+        function updateBadges(stages) {
+            const statusMap = { 'locked': 'Locked', 'pending': 'Pending', 'in_review': 'In Review', 'approved': 'Approved' };
+            const badgeClass = { 'locked': 'locked', 'pending': 'pending', 'in_review': 'in-review', 'approved': 'approved' };
+            const STAGE_KEYS = ['questionnaire', 'color', 'logo', 'menu', 'brochure', 'social', 'packaging'];
+            
+            document.querySelectorAll('.nav-item .badge').forEach((badge, index) => {
+                if (index < STAGE_KEYS.length) {
+                    const key = STAGE_KEYS[index];
+                    const status = stages[key] || 'locked';
+                    badge.textContent = statusMap[status] || 'Locked';
+                    badge.className = 'badge ' + badgeClass[status];
+                }
+            });
+        }
+
+        function updateTimeline(stages) {
+            const STAGE_KEYS = ['questionnaire', 'color', 'logo', 'menu', 'brochure', 'social', 'packaging'];
+            const LABELS = ['Questionnaire', 'Color Selection', 'Logo Design', 'Menu Design', 'Brochure', 'Social Media', 'Packaging'];
+            const ICONS = ['📋', '🎨', '✍️', '📄', '📘', '📱', '📦'];
+            
+            const container = document.getElementById('timelineContainer');
+            if (!container) return;
+            
+            container.innerHTML = STAGE_KEYS.map((key, i) => {
+                const status = stages[key] || 'locked';
+                const isActive = status === 'pending' || status === 'in_review';
+                const isCompleted = status === 'approved';
+                const icon = isCompleted ? '✅' : (isActive ? '⏳' : '🔒');
+                const statusText = { 'locked': 'Locked', 'pending': 'Ready', 'in_review': 'In Review', 'approved': 'Done' }[status];
+                
+                return `
+                    <div class="timeline-item">
+                        <div style="font-size:20px;width:32px;text-align:center;">${icon}</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;">${ICONS[i]} ${LABELS[i]}</div>
+                            <div style="font-size:12px;color:#5b6478;">${statusText}</div>
+                        </div>
+                        <div>
+                            <span class="badge ${status === 'approved' ? 'approved' : (status === 'locked' ? 'locked' : 'pending')}">${statusText}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateCurrentStage(stages) {
+            const stageKeys = ['questionnaire', 'color', 'logo', 'menu', 'brochure', 'social', 'packaging'];
+            const stageLabels = ['Questionnaire', 'Color Selection', 'Logo Design', 'Menu Design', 'Brochure', 'Social Media', 'Packaging'];
+            let currentLabel = 'Complete';
+            
+            for (let i = 0; i < stageKeys.length; i++) {
+                if (stages[stageKeys[i]] !== 'approved') {
+                    currentLabel = stageLabels[i];
+                    break;
+                }
+            }
+            document.getElementById('currentStage').textContent = currentLabel;
+        }
+
+        // Load stages from API (with localStorage fallback)
+        async function loadFromLocalStorage() {
+            const token = localStorage.getItem('token');
+            const projectId = parseInt(
+                localStorage.getItem('project_id') ||
+                localStorage.getItem('projectId') || '0'
+            );
+
+            // Try API first
+            if (token && projectId) {
+                try {
+                    // Also load project name
+                    const projRes = await fetch(`${API_BASE}/projects/${projectId}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (projRes.ok) {
+                        const proj = await projRes.json();
+                        const el = document.getElementById('projectName');
+                        if (el && proj.project_name) el.textContent = proj.project_name;
+                    }
+
+                    const res = await fetch(`${API_BASE}/projects/${projectId}/stages`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const stages = await res.json();
+                        localStorage.setItem('stages_status', JSON.stringify(stages));
+                        updateDashboard(stages);
+                        return;
+                    }
+                } catch(e) { console.warn('API stages load failed, using localStorage'); }
+            }
+
+            // Fallback: try to auto-fetch project first
+            if (token && !projectId) {
+                try {
+                    const pRes = await fetch(`${API_BASE}/projects`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (pRes.ok) {
+                        const projects = await pRes.json();
+                        if (projects && projects.length > 0) {
+                            localStorage.setItem('project_id', projects[0].id);
+                            localStorage.setItem('projectId', projects[0].id);
+                            const el = document.getElementById('projectName');
+                            if (el) el.textContent = projects[0].project_name;
+                            // Reload to use new projectId
+                            loadFromLocalStorage();
+                            return;
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            // Final fallback: localStorage
+            const stages = JSON.parse(localStorage.getItem('stages_status')) || {
+                questionnaire: 'pending',
+                color: 'locked',
+                logo: 'locked',
+                menu: 'locked',
+                brochure: 'locked',
+                social: 'locked',
+                packaging: 'locked'
+            };
+            updateDashboard(stages);
+        }
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        
+        // Logout button
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+
+        // Nav items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const page = this.dataset.page;
+                if (page === 'dashboard') {
+                    location.reload();
+                    return;
+                }
+                window.location.href = page + '.html';
+            });
+        });
+
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if logged in
+            if (!isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Load user data
+            loadUserData();
+            
+            // Load stages
+            loadFromLocalStorage();
+            
+            console.log('✅ Dashboard loaded successfully');
+            console.log('👤 User:', getUser());
+        });
+
+        // Make logout globally available (fallback)
+        window.logout = logout;
+    </script>
+</body>
+</html>

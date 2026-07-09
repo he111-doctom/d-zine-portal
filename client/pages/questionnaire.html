@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionnaire — D'zine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+        .sidebar {
+            margin: var(--s4);
+            margin-right: 0;
+            border-radius: var(--r-xl);
+            padding: var(--s5) var(--s4);
+            position: sticky;
+            top: var(--s4);
+            height: calc(100vh - var(--s6));
+            display: flex;
+            flex-direction: column;
+            gap: var(--s4);
+            box-shadow: var(--glass-shadow);
+            background: var(--glass);
+            backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid var(--glass-border);
+        }
+        .brand { display: flex; align-items: center; gap: var(--s3); padding: 0 var(--s2); }
+        .brand .mark {
+            width: 38px; height: 38px; border-radius: 12px; flex: none;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 18px;
+            box-shadow: 0 8px 18px -6px rgba(123,110,240,.7);
+        }
+        .brand .name { font-family: var(--font-display); font-weight: 800; font-size: 19px; }
+        .brand .sub { font-size: 10px; letter-spacing: .22em; color: var(--muted); font-weight: 600; margin-top: 3px; }
+        .nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .nav-item {
+            display: flex; align-items: center; gap: var(--s3); padding: 10px var(--s3);
+            border-radius: 12px; cursor: pointer; color: var(--ink-2); font-size: 14px; font-weight: 500;
+            border: 1px solid transparent; transition: all .18s;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.55); color: var(--ink); }
+        .nav-item.active { background: var(--glass-strong); color: var(--ink); font-weight: 600; border-color: var(--glass-border); box-shadow: 0 6px 16px -10px rgba(53,49,110,0.5); }
+        .nav-item .ico { font-size: 18px; flex: none; }
+        .nav-item .lbl { flex: 1; }
+        .badge { font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .badge.pending { background: #fdeede; color: #a4661f; }
+        .badge.approved { background: #dcf3e8; color: #1d8d59; }
+        .badge.locked { background: #eef0f4; color: var(--st-locked); }
+        .badge.in-review { background: var(--accent-blue-soft); color: #2f5fae; }
+        .main { padding: var(--s4) var(--s5); min-width: 0; }
+        .topbar { display: flex; align-items: center; gap: var(--s4); margin-bottom: var(--s5); }
+        .topbar h1 { font-size: 26px; font-weight: 800; }
+        .topbar .crumb { font-size: 12.5px; color: var(--ink-2); margin-top: 2px; }
+        .topbar .spacer { flex: 1; }
+        .card {
+            border-radius: var(--r-lg); padding: var(--s5); box-shadow: var(--card-shadow);
+            background: var(--glass); backdrop-filter: blur(22px) saturate(140%); border: 1px solid var(--glass-border);
+        }
+        .grid { display: grid; gap: var(--s4); }
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: var(--s4); display: flex; align-items: center; gap: 10px; }
+        .muted { color: var(--ink-2); }
+        .tiny { font-size: 12px; }
+        .q { padding: var(--s4) 0; border-bottom: 1px solid var(--line); }
+        .q:last-child { border-bottom: 0; }
+        .q .qh { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s4); margin-bottom: var(--s3); }
+        .q .qt { font-size: 14.5px; font-weight: 600; }
+        .q .qn { font-family: var(--font-display); font-weight: 800; color: rgba(123,110,240,.35); font-size: 15px; }
+        .q .ql { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-2); margin-top: 8px; font-weight: 500; }
+        input[type=range] {
+            -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: var(--r-pill);
+            background: rgba(123,110,240,.16); outline: none; cursor: pointer;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+            background: #fff; border: 4px solid var(--primary);
+            box-shadow: 0 4px 10px -2px rgba(123,110,240,.7); cursor: grab;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #fff; border: 4px solid var(--primary);
+            box-shadow: 0 4px 10px -2px rgba(123,110,240,.7); cursor: grab;
+        }
+        .side-card { position: sticky; top: 16px; }
+        .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; padding: 4px 11px; border-radius: var(--r-pill); letter-spacing: .02em; }
+        .pill .pd { width: 7px; height: 7px; border-radius: 50%; }
+        .pill.pending { background: #fdeede; color: #a4661f; }
+        .pill.pending .pd { background: var(--st-pending); }
+        .user-section {
+            display: flex; align-items: center; justify-content: space-between; gap: var(--s2);
+            padding-top: var(--s3); border-top: 1px solid var(--line);
+        }
+        .user-chip {
+            display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px;
+            border-radius: var(--r-pill); box-shadow: var(--card-shadow); border: 1px solid var(--glass-border);
+        }
+        .user-chip .av {
+            width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+            font-weight: 700; font-size: 12px; background: linear-gradient(135deg, var(--accent-blue), var(--primary));
+        }
+        .user-chip .nm { font-size: 13px; font-weight: 600; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 13.5px; font-weight: 600; padding: 11px 18px; border-radius: 12px;
+            cursor: pointer; border: 1px solid transparent; transition: all .2s;
+        }
+        .btn-primary { color: #fff; background: linear-gradient(135deg, var(--primary), var(--primary-2)); box-shadow: 0 12px 24px -12px rgba(123,110,240,.9); }
+        .btn-primary:hover { box-shadow: 0 14px 30px -10px rgba(123,110,240,.95); }
+        .btn-ghost { background: var(--glass-strong); border-color: var(--glass-border); color: var(--ink); }
+        .btn-ghost:hover { background: #fff; }
+        .btn-row { display: flex; gap: var(--s3); flex-wrap: wrap; margin-top: var(--s4); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-quiet { background: transparent; color: var(--ink-2); padding: 10px 14px; border: 0; cursor: pointer; font-weight: 500; }
+        .btn-quiet:hover { color: var(--ink); background: rgba(255,255,255,0.5); border-radius: 8px; }
+        .toast-notification {
+            position: fixed; bottom: 24px; right: 24px; padding: 14px 20px; border-radius: 14px;
+            background: var(--glass-strong); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow); font-weight: 600; z-index: 1000;
+            animation: slideIn .3s ease; max-width: 400px;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 920px) { .app { grid-template-columns: 1fr; } .sidebar { display: none; } .main { padding: var(--s4); } }
+    </style>
+    <script src="../assets/js/config.js"></script>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar glass">
+            <div class="brand">
+                <div class="mark">D</div>
+                <div>
+                    <div class="name">D'zine</div>
+                    <div class="sub">BRAND STUDIO</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <div class="nav-item" onclick="window.location.href='dashboard.html'">
+                    <span class="ico">📊</span><span class="lbl">Dashboard</span>
+                </div>
+                <div class="nav-item active">
+                    <span class="ico">📋</span><span class="lbl">Questionnaire</span>
+                    <span class="badge pending">Pending</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='color.html'">
+                    <span class="ico">🎨</span><span class="lbl">Color Selection</span>
+                    <span class="badge locked">Locked</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='logo.html'">
+                    <span class="ico">✍️</span><span class="lbl">Logo Design</span>
+                    <span class="badge locked">Locked</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='deliverables.html'">
+                    <span class="ico">🎯</span><span class="lbl">Deliverables</span>
+                </div>
+            </nav>
+            <div class="user-section">
+                <div class="user-chip">
+                    <div class="av" id="userAv">JD</div>
+                    <div class="nm" id="userNm">Demo User</div>
+                </div>
+                <button class="btn-quiet" onclick="logout()">Sign Out</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <div class="crumb">D'zine Brand Studio · Brand Identity</div>
+                    <h1>Questionnaire</h1>
+                </div>
+                <div class="spacer"></div>
+            </header>
+
+            <div class="grid" style="grid-template-columns:1fr 300px;align-items:start">
+                <div class="card">
+                    <div class="section-title">Brand Questionnaire <span class="pill pending"><span class="pd"></span>Pending</span></div>
+                    <p class="muted tiny" style="margin:-8px 0 8px">Slide each control toward what fits your brand. Answers save automatically.</p>
+                    <div id="questionsContainer"></div>
+                    <div class="btn-row">
+                        <button class="btn btn-ghost" id="saveDraftBtn" onclick="saveDraft()">💾 Save Draft</button>
+                        <button class="btn btn-primary" id="submitBtn" onclick="submitQuestionnaire()">✅ Save & Continue</button>
+                    </div>
+                </div>
+                <div class="card side-card">
+                    <div class="section-title">💡 Why this matters</div>
+                    <p class="muted" style="font-size:13px;line-height:1.6">These twelve sliders define the strategic direction of your identity — tone, audience, and positioning. The studio uses them to brief the color, logo, and asset stages.</p>
+                    <div style="margin-top:16px">
+                        <div class="muted tiny" style="font-weight:600">ANSWERED</div>
+                        <div style="font-family:var(--font-display);font-weight:800;font-size:24px" id="answeredCount">0/12</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ============================================
+        // SIMPLE WORKING VERSION
+        // ============================================
+        
+        const API_BASE = CONFIG.API_BASE;
+        const QUESTIONS = [
+            ['Who is your primary target audience?', 'Gen Z', 'Older customers'],
+            ['What describes your brand personality?', 'Playful', 'Professional'],
+            ["What is your brand's visual style?", 'Minimal', 'Ornate / detailed'],
+            ['How would you like your brand tone to be?', 'Casual', 'Formal'],
+            ['What emotion should your brand evoke?', 'Calm', 'Excitement'],
+            ['How would you like your brand to be perceived?', 'Affordable', 'Premium'],
+            ['How innovative should your brand feel?', 'Traditional', 'Innovative'],
+            ['What is your communication style?', 'Serious', 'Friendly'],
+            ['Growth direction?', 'Local', 'Global'],
+            ['Customer perception?', 'Trust', 'Admiration'],
+            ['Brand energy?', 'Low-key', 'High-energy'],
+            ['Market position?', 'Follower', 'Leader']
+        ];
+
+        let answers = new Array(12).fill(50);
+        let projectId = 1;
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function getUser() {
+            try {
+                const data = localStorage.getItem('user');
+                return data ? JSON.parse(data) : null;
+            } catch(e) { return null; }
+        }
+
+        // ✅ GET CURRENT SLIDER VALUES - THIS IS THE KEY!
+        function getCurrentAnswers() {
+            const sliders = document.querySelectorAll('input[type="range"]');
+            const values = [];
+            sliders.forEach(slider => {
+                values.push(parseInt(slider.value));
+            });
+            return values;
+        }
+
+        function loadAnswers() {
+            const saved = localStorage.getItem('questionnaire_answers');
+            if (saved) {
+                try {
+                    answers = JSON.parse(saved);
+                } catch(e) {}
+            }
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = QUESTIONS.map((q, i) => `
+                <div class="q">
+                    <div class="qh">
+                        <div class="qt">${q[0]}</div>
+                        <div class="qn">${String(i + 1).padStart(2, '0')}</div>
+                    </div>
+                    <input type="range" min="0" max="100" value="${answers[i]}" 
+                           data-q="${i}" oninput="updateAnswer(${i}, this.value)"/>
+                    <div class="ql">
+                        <span>${q[1]}</span>
+                        <span>${q[2]}</span>
+                    </div>
+                    <div style="text-align:center;font-size:12px;color:var(--ink-2);margin-top:4px;">
+                        Value: <strong>${answers[i]}</strong>
+                    </div>
+                </div>
+            `).join('');
+            updateAnsweredCount();
+        }
+
+        function updateAnswer(index, value) {
+            answers[index] = parseInt(value);
+            localStorage.setItem('questionnaire_answers', JSON.stringify(answers));
+            updateAnsweredCount();
+        }
+
+        function updateAnsweredCount() {
+            const answered = answers.filter(a => a !== 50).length;
+            document.getElementById('answeredCount').textContent = `${answered}/${QUESTIONS.length}`;
+        }
+
+        // ✅ SAVE DRAFT - Uses getCurrentAnswers()
+        async function saveDraft() {
+            const btn = document.getElementById('saveDraftBtn');
+            btn.disabled = true;
+            btn.textContent = '💾 Saving...';
+            
+            try {
+                const token = getToken();
+                if (!token) {
+                    showNotification('⚠️ Please login first');
+                    btn.disabled = false;
+                    btn.textContent = '💾 Save Draft';
+                    return;
+                }
+
+                // Get current slider values
+                const currentAnswers = getCurrentAnswers();
+                console.log('📤 Saving answers:', currentAnswers);
+                
+                const response = await fetch(`${API_BASE}/questionnaire/${projectId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ answers: currentAnswers })
+                });
+
+                const result = await response.json();
+                console.log('📥 Response:', result);
+
+                if (response.ok) {
+                    localStorage.setItem('questionnaire_answers', JSON.stringify(currentAnswers));
+                    showNotification('💾 Draft saved! ✅');
+                } else {
+                    showNotification('⚠️ Save failed: ' + (result.error || 'unknown'));
+                }
+            } catch (error) {
+                console.error('❌ Error:', error);
+                showNotification('❌ API error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '💾 Save Draft';
+            }
+        }
+
+        // ✅ SUBMIT - Uses getCurrentAnswers()
+        async function submitQuestionnaire() {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Submitting...';
+            
+            try {
+                const token = getToken();
+                if (!token) {
+                    showNotification('⚠️ Please login first');
+                    btn.disabled = false;
+                    btn.textContent = '✅ Save & Continue';
+                    return;
+                }
+
+                // Get current slider values
+                const currentAnswers = getCurrentAnswers();
+                console.log('📤 Submitting answers:', currentAnswers);
+
+                const response = await fetch(`${API_BASE}/questionnaire/${projectId}/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ answers: currentAnswers })
+                });
+
+                const result = await response.json();
+                console.log('📥 Response:', result);
+
+                if (response.ok) {
+                    localStorage.setItem('questionnaire_answers', JSON.stringify(currentAnswers));
+                    localStorage.setItem('questionnaire_submitted', 'true');
+                    
+                    const stages = JSON.parse(localStorage.getItem('stages_status')) || {};
+                    stages.questionnaire = 'approved';
+                    stages.color = 'pending';
+                    localStorage.setItem('stages_status', JSON.stringify(stages));
+                    
+                    showNotification('✅ Submitted!');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'color.html';
+                    }, 1500);
+                } else {
+                    showNotification('❌ Failed: ' + (result.error || 'unknown'));
+                    btn.disabled = false;
+                    btn.textContent = '✅ Save & Continue';
+                }
+            } catch (error) {
+                console.error('❌ Error:', error);
+                showNotification('❌ Connection error');
+                btn.disabled = false;
+                btn.textContent = '✅ Save & Continue';
+            }
+        }
+
+        function showNotification(msg) {
+            const existing = document.querySelector('.toast-notification');
+            if (existing) existing.remove();
+            const div = document.createElement('div');
+            div.className = 'toast-notification';
+            div.textContent = msg;
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transform = 'translateY(20px)';
+                setTimeout(() => div.remove(), 300);
+            }, 3000);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            document.getElementById('userNm').textContent = user.full_name || 'Demo User';
+            document.getElementById('userAv').textContent = (user.full_name || 'DU').substring(0, 2).toUpperCase();
+            
+            // Auto-detect project ID
+            projectId = parseInt(
+                localStorage.getItem('project_id') ||
+                localStorage.getItem('projectId') ||
+                '0'
+            );
+            // If not found, fetch from API
+            if (!projectId) {
+                fetch(`${API_BASE}/projects`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                }).then(r => r.json()).then(projects => {
+                    if (projects && projects.length > 0) {
+                        projectId = projects[0].id;
+                        localStorage.setItem('project_id', projectId);
+                        localStorage.setItem('projectId', projectId);
+                        console.log('✅ Project ID auto-fetched:', projectId);
+                    }
+                }).catch(() => console.warn('Could not fetch project'));
+            }
+            loadAnswers();
+            renderQuestions();
+            
+            console.log('✅ Questionnaire loaded');
+            console.log('👤 User:', user);
+            console.log('📁 Project ID:', projectId);
+        });
+    </script>
+</body>
+</html>

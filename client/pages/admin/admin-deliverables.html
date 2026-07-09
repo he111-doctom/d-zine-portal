@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deliverables — D'zine Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <script src="../../assets/js/config.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #dfe6fb; min-height: 100vh; }
+        .admin-app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+        .sidebar {
+            margin: 16px 0 16px 16px; border-radius: 24px; padding: 24px 16px;
+            position: sticky; top: 16px; height: calc(100vh - 32px);
+            display: flex; flex-direction: column; gap: 20px;
+            background: rgba(255,255,255,0.72); backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 20px 60px -20px rgba(53,49,110,0.25);
+        }
+        .brand { display: flex; align-items: center; gap: 12px; padding: 0 8px; }
+        .brand .mark {
+            width: 42px; height: 42px; border-radius: 14px;
+            background: linear-gradient(135deg, #7b6ef0, #9b76f0);
+            display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 20px;
+        }
+        .brand .nm { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; }
+        .brand .sub { font-size: 10px; letter-spacing: .22em; color: #929bb0; font-weight: 600; }
+        .nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+            border-radius: 12px; cursor: pointer; color: #5b6478; font-size: 14px; font-weight: 500;
+            text-decoration: none; transition: all .18s;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.6); color: #1d2433; }
+        .nav-item.active { background: rgba(255,255,255,0.85); color: #1d2433; font-weight: 600; }
+        .nav-item .ico { font-size: 17px; }
+        .user-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-top: 16px; border-top: 1px solid rgba(29,36,51,0.08);
+        }
+        .av-chip { display: flex; align-items: center; gap: 8px; }
+        .av { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+              background: linear-gradient(135deg,#7b6ef0,#9b76f0); color:#fff; font-weight:700; font-size:12px; }
+        .av-name { font-size: 13px; font-weight: 600; }
+        .btn-logout { font-size: 13px; color: #5b6478; background: none; border: none; cursor: pointer; font-weight: 500; }
+        .btn-logout:hover { color: #1d2433; }
+        .main { padding: 24px 32px; min-width: 0; }
+        .topbar { margin-bottom: 24px; }
+        .topbar h1 { font-family: 'Plus Jakarta Sans',sans-serif; font-size: 26px; font-weight: 800; }
+        .topbar .sub { font-size: 13px; color: #5b6478; margin-top: 4px; }
+        .card {
+            background: rgba(255,255,255,0.7); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.8); border-radius: 20px;
+            padding: 24px; box-shadow: 0 8px 32px -12px rgba(53,49,110,0.18);
+            margin-bottom: 16px;
+        }
+        .client-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+        }
+        .client-info { display: flex; align-items: center; gap: 12px; }
+        .c-av {
+            width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+            color: #fff; font-weight: 700; font-size: 16px; flex: none;
+        }
+        .c-name { font-weight: 700; font-size: 16px; }
+        .c-sub { font-size: 12px; color: #5b6478; margin-top: 2px; }
+        .status-badge {
+            font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 20px;
+        }
+        .status-badge.active { background: #dcf3e8; color: #1d8d59; }
+        .status-badge.pending { background: #fdeede; color: #a4661f; }
+        .status-badge.completed { background: #e8e3fd; color: #5b3fc4; }
+        .progress-bar { height: 6px; background: #eef0f4; border-radius: 10px; margin: 12px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #7b6ef0, #9b76f0); border-radius: 10px; transition: width 0.5s; }
+        .stages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin-top: 12px; }
+        .stage-chip {
+            display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+            border-radius: 10px; font-size: 12px; font-weight: 600;
+            background: #f5f6fa; color: #5b6478;
+        }
+        .stage-chip.approved { background: #dcf3e8; color: #1d8d59; }
+        .stage-chip.pending { background: #fdeede; color: #a4661f; }
+        .stage-chip.in_review { background: #e3eeff; color: #2f5fae; }
+        .stage-chip.locked { background: #f0f1f5; color: #929bb0; }
+        .stage-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+        .approved .stage-dot { background: #1d8d59; }
+        .pending .stage-dot { background: #e89940; }
+        .in_review .stage-dot { background: #4a7fe0; }
+        .locked .stage-dot { background: #c0c4ce; }
+        .empty-state { text-align: center; padding: 60px 20px; color: #5b6478; }
+        .empty-state .ico { font-size: 48px; margin-bottom: 16px; }
+        .loading { text-align: center; padding: 40px; color: #929bb0; font-size: 14px; }
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; padding: 14px 20px;
+            border-radius: 14px; background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 8px 32px rgba(53,49,110,0.2);
+            font-weight: 600; font-size: 14px; z-index: 9999;
+            animation: slideUp .3s ease; display: none;
+        }
+        @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        @media (max-width: 768px) { .admin-app { grid-template-columns: 1fr; } .sidebar { display: none; } }
+    </style>
+</head>
+<body>
+<div class="admin-app">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="mark">D</div>
+            <div>
+                <div class="nm">D'zine</div>
+                <div class="sub">ADMIN PANEL</div>
+            </div>
+        </div>
+        <nav class="nav">
+            <a class="nav-item" href="admin-dashboard.html"><span class="ico">📊</span> Dashboard</a>
+            <a class="nav-item" href="admin-clients.html"><span class="ico">👥</span> Clients</a>
+            <a class="nav-item" href="admin-projects.html"><span class="ico">📁</span> Projects</a>
+            <a class="nav-item active" href="admin-deliverables.html"><span class="ico">📦</span> Deliverables</a>
+        </nav>
+        <div class="user-bar">
+            <div class="av-chip">
+                <div class="av" id="adminAv">AD</div>
+                <div class="av-name" id="adminNm">Admin</div>
+            </div>
+            <button class="btn-logout" onclick="logout()">Sign Out</button>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <h1>📦 Deliverables</h1>
+            <div class="sub">Track project progress and stage completion for all clients</div>
+        </div>
+        <div id="content"><div class="loading">⏳ Loading projects...</div></div>
+    </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const API_BASE = CONFIG.API_BASE;
+
+    function getToken() { return localStorage.getItem('token'); }
+    function getUser() { try { return JSON.parse(localStorage.getItem('user')); } catch(e) { return null; } }
+    function logout() { localStorage.clear(); window.location.href = 'admin-login.html'; }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.style.display = 'block';
+        setTimeout(() => { t.style.display = 'none'; }, 3000);
+    }
+
+    function avatarColor(i) {
+        const colors = ['#7b6ef0','#e89940','#2bb673','#e05b5b','#4a7fe0','#9b6ef0'];
+        return colors[i % colors.length];
+    }
+
+    const STAGE_LABELS = {
+        questionnaire: '📋 Questionnaire', color: '🎨 Colors', logo: '✍️ Logo',
+        menu: '🍽️ Menu', brochure: '📄 Brochure', social: '📱 Social', packaging: '📦 Packaging', deliverables: '🎯 Deliverables'
+    };
+
+    async function loadDeliverables() {
+        try {
+            const res = await fetch(`${API_BASE}/admin/deliverables`, {
+                headers: { 'Authorization': `Bearer ${getToken()}` }
+            });
+            const projects = await res.json();
+
+            const content = document.getElementById('content');
+
+            if (!projects.length) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="ico">📭</div>
+                        <div style="font-size:18px;font-weight:700;margin-bottom:8px;">No projects yet</div>
+                        <div>Create a project from the <a href="admin-projects.html" style="color:#7b6ef0;font-weight:600;">Projects</a> page</div>
+                    </div>`;
+                return;
+            }
+
+            // For each project, also fetch its stages
+            const cards = await Promise.all(projects.map(async (p, i) => {
+                let stagesHtml = '';
+                try {
+                    const sr = await fetch(`${API_BASE}/projects/${p.id}/stages`, {
+                        headers: { 'Authorization': `Bearer ${getToken()}` }
+                    });
+                    const stages = await sr.json();
+                    stagesHtml = Object.entries(stages).map(([key, status]) => `
+                        <div class="stage-chip ${status}">
+                            <div class="stage-dot"></div>
+                            ${STAGE_LABELS[key] || key}
+                        </div>`).join('');
+                } catch(e) {}
+
+                const pct = p.stages_total > 0 ? Math.round((p.stages_done / p.stages_total) * 100) : 0;
+                const initials = (p.client_name || 'CL').substring(0, 2).toUpperCase();
+                const statusClass = p.status === 'completed' ? 'completed' : p.status === 'active' ? 'active' : 'pending';
+                const statusLabel = { active:'🟢 Active', completed:'✅ Completed', pending:'🟡 Pending', archived:'📦 Archived' }[p.status] || p.status;
+
+                return `
+                <div class="card">
+                    <div class="client-header">
+                        <div class="client-info">
+                            <div class="c-av" style="background:${avatarColor(i)}">${initials}</div>
+                            <div>
+                                <div class="c-name">${p.client_name || 'Unknown Client'}</div>
+                                <div class="c-sub">${p.company_name || ''} · ${p.project_name}</div>
+                            </div>
+                        </div>
+                        <span class="status-badge ${statusClass}">${statusLabel}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;color:#5b6478;margin-bottom:4px;">
+                        <span>${p.stages_done} of ${p.stages_total} stages complete</span>
+                        <span>${pct}%</span>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+                    <div class="stages-grid">${stagesHtml}</div>
+                </div>`;
+            }));
+
+            content.innerHTML = cards.join('');
+        } catch(e) {
+            document.getElementById('content').innerHTML = `<div class="loading">❌ Failed to load: ${e.message}</div>`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const user = getUser();
+        if (!user || user.role !== 'admin') {
+            window.location.href = 'admin-login.html';
+            return;
+        }
+        document.getElementById('adminNm').textContent = user.full_name || 'Admin';
+        document.getElementById('adminAv').textContent = (user.full_name || 'AD').substring(0, 2).toUpperCase();
+        loadDeliverables();
+    });
+</script>
+</body>
+</html>

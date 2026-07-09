@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo Design — D'zine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+        .sidebar {
+            margin: var(--s4);
+            margin-right: 0;
+            border-radius: var(--r-xl);
+            padding: var(--s5) var(--s4);
+            position: sticky;
+            top: var(--s4);
+            height: calc(100vh - var(--s6));
+            display: flex;
+            flex-direction: column;
+            gap: var(--s4);
+            box-shadow: var(--glass-shadow);
+            background: var(--glass);
+            backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid var(--glass-border);
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: var(--s3);
+            padding: 0 var(--s2);
+        }
+        .brand .mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            flex: none;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 8px 18px -6px rgba(123,110,240,.7);
+        }
+        .brand .name { font-family: var(--font-display); font-weight: 800; font-size: 19px; }
+        .brand .sub { font-size: 10px; letter-spacing: .22em; color: var(--muted); font-weight: 600; margin-top: 3px; }
+        .nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--s3);
+            padding: 10px var(--s3);
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--ink-2);
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid transparent;
+            transition: all .18s;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.55); color: var(--ink); }
+        .nav-item.active {
+            background: var(--glass-strong);
+            color: var(--ink);
+            font-weight: 600;
+            border-color: var(--glass-border);
+        }
+        .nav-item .ico { font-size: 18px; flex: none; }
+        .nav-item .lbl { flex: 1; }
+        .badge {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+        .badge.pending { background: #fdeede; color: #a4661f; }
+        .badge.approved { background: #dcf3e8; color: #1d8d59; }
+        .badge.locked { background: #eef0f4; color: var(--st-locked); }
+        
+        .main { padding: var(--s4) var(--s5); min-width: 0; }
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: var(--s4);
+            margin-bottom: var(--s5);
+        }
+        .topbar h1 { font-size: 26px; font-weight: 800; }
+        .topbar .crumb { font-size: 12.5px; color: var(--ink-2); margin-top: 2px; }
+        .topbar .spacer { flex: 1; }
+        
+        .card {
+            border-radius: var(--r-lg);
+            padding: var(--s5);
+            box-shadow: var(--card-shadow);
+            background: var(--glass);
+            backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid var(--glass-border);
+        }
+        .grid { display: grid; gap: var(--s4); }
+        .cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: var(--s4); display: flex; align-items: center; gap: 10px; }
+        .muted { color: var(--ink-2); }
+        .tiny { font-size: 12px; }
+        
+        .concept {
+            border-radius: var(--r-md);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            background: var(--glass-strong);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+        }
+        .concept .preview {
+            height: 170px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg,#f4f6fe,#eef0fb);
+            border-bottom: 1px solid var(--line);
+            padding: 20px;
+        }
+        .concept .preview svg { max-width: 100%; max-height: 100%; }
+        .concept .pbody {
+            padding: var(--s4);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+        .concept .ct { font-size: 14px; font-weight: 700; }
+        .concept .cd { font-size: 12.5px; color: var(--ink-2); line-height: 1.5; flex: 1; }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 11px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all .2s;
+        }
+        .btn-primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            box-shadow: 0 12px 24px -12px rgba(123,110,240,.9);
+        }
+        .btn-primary:hover { box-shadow: 0 14px 30px -10px rgba(123,110,240,.95); }
+        .btn-ghost {
+            background: var(--glass-strong);
+            border-color: var(--glass-border);
+            color: var(--ink);
+        }
+        .btn-ghost:hover { background: #fff; }
+        .btn-success { background: #2bb673; color: #fff; }
+        .btn-success:hover { background: #239d60; }
+        .btn-row { display: flex; gap: var(--s3); flex-wrap: wrap; margin-top: var(--s4); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--s2);
+            padding-top: var(--s3);
+            border-top: 1px solid var(--line);
+        }
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 14px 6px 6px;
+            border-radius: var(--r-pill);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+        }
+        .user-chip .av {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--primary));
+        }
+        .user-chip .nm { font-size: 13px; font-weight: 600; }
+        .btn-quiet {
+            background: transparent;
+            color: var(--ink-2);
+            padding: 10px 14px;
+            border: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-quiet:hover { color: var(--ink); background: rgba(255,255,255,0.5); border-radius: 8px; }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 11px;
+            border-radius: var(--r-pill);
+            letter-spacing: .02em;
+        }
+        .pill .pd { width: 7px; height: 7px; border-radius: 50%; }
+        .pill.pending { background: #fdeede; color: #a4661f; }
+        .pill.pending .pd { background: var(--st-pending); }
+        .pill.approved { background: #dcf3e8; color: #1d8d59; }
+        .pill.approved .pd { background: var(--st-approved); }
+        
+        textarea {
+            width: 100%;
+            font-family: inherit;
+            font-size: 13px;
+            color: var(--ink);
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.7);
+            outline: none;
+            resize: vertical;
+            min-height: 60px;
+        }
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(123,110,240,.15);
+        }
+        
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 20px;
+            border-radius: 14px;
+            background: var(--glass-strong);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn .3s ease;
+            max-width: 400px;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .locked-panel {
+            text-align: center;
+            padding: var(--s7) var(--s5);
+        }
+        .locked-panel .li {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            margin: 0 auto var(--s4);
+            display: grid;
+            place-items: center;
+            background: rgba(154,163,184,.15);
+            color: var(--st-locked);
+            font-size: 32px;
+        }
+        
+        @media (max-width: 920px) {
+            .app { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main { padding: var(--s4); }
+            .cols-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+    <script src="../assets/js/config.js"></script>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar glass">
+            <div class="brand">
+                <div class="mark">D</div>
+                <div>
+                    <div class="name">D'zine</div>
+                    <div class="sub">BRAND STUDIO</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <div class="nav-item" onclick="window.location.href='dashboard.html'">
+                    <span class="ico">📊</span><span class="lbl">Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='questionnaire.html'">
+                    <span class="ico">📋</span><span class="lbl">Questionnaire</span>
+                    <span class="badge approved">Approved</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='color.html'">
+                    <span class="ico">🎨</span><span class="lbl">Color Selection</span>
+                    <span class="badge approved">Approved</span>
+                </div>
+                <div class="nav-item active">
+                    <span class="ico">✍️</span><span class="lbl">Logo Design</span>
+                    <span class="badge pending">Pending</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='deliverables.html'">
+                    <span class="ico">🎯</span><span class="lbl">Deliverables</span>
+                </div>
+            </nav>
+            <div class="user-section">
+                <div class="user-chip">
+                    <div class="av" id="userAv">DU</div>
+                    <div class="nm" id="userNm">Demo User</div>
+                </div>
+                <button class="btn-quiet" onclick="logout()">Sign Out</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <div class="crumb">D'zine Brand Studio · Brand Identity</div>
+                    <h1>Logo Design</h1>
+                </div>
+                <div class="spacer"></div>
+            </header>
+
+            <div id="pageContent">
+                <!-- Rendered by JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ============================================
+        // LOGO DESIGN - WITH DATABASE API
+        // ============================================
+        
+        const API_BASE = CONFIG.API_BASE;
+        let projectId = 1;
+        let selectedConcept = -1;
+        let isSubmitting = false;
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function getUser() {
+            try {
+                const data = localStorage.getItem('user');
+                return data ? JSON.parse(data) : null;
+            } catch(e) { return null; }
+        }
+
+        function isUnlocked() {
+            const stages = JSON.parse(localStorage.getItem('stages_status')) || {};
+            return stages.color === 'approved';
+        }
+
+        function getLogoConcepts() {
+            const colors = JSON.parse(localStorage.getItem('color_palette')) || {
+                primary: '#7b6ef0',
+                secondary: '#1d2433',
+                accent: '#5b8def'
+            };
+            
+            return [
+                {
+                    name: 'Concept 01 — Wordmark',
+                    desc: 'Confident lowercase wordmark with a violet accent dot. Friendly-premium, reads clearly at small sizes.',
+                    svg: `<svg viewBox="0 0 220 90"><text x="20" y="58" font-family="Plus Jakarta Sans" font-weight="800" font-size="42" fill="${colors.secondary}">d'zine</text><circle cx="196" cy="50" r="7" fill="${colors.primary}"/></svg>`
+                },
+                {
+                    name: 'Concept 02 — Monogram Tile',
+                    desc: 'Rounded "D" monogram in a gradient tile paired with the studio line. Strong for app icons and avatars.',
+                    svg: `<svg viewBox="0 0 220 90"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${colors.primary}"/><stop offset="1" stop-color="${colors.accent}"/></linearGradient></defs><rect x="20" y="20" width="50" height="50" rx="14" fill="url(#lg)"/><text x="34" y="57" font-family="Plus Jakarta Sans" font-weight="800" font-size="34" fill="#fff">D</text><text x="84" y="46" font-family="Plus Jakarta Sans" font-weight="800" font-size="22" fill="${colors.secondary}">D'zine</text><text x="85" y="64" font-family="Inter" font-size="10" letter-spacing="3" fill="${colors.primary}">BRAND STUDIO</text></svg>`
+                },
+                {
+                    name: 'Concept 03 — Spark Mark',
+                    desc: 'Geometric four-point spark beside the name — signals creativity and momentum. Versatile standalone symbol.',
+                    svg: `<svg viewBox="0 0 220 90"><path d="M44 20 L51 41 L72 48 L51 55 L44 76 L37 55 L16 48 L37 41 Z" fill="${colors.primary}"/><text x="86" y="58" font-family="Plus Jakarta Sans" font-weight="800" font-size="30" fill="${colors.secondary}">D'zine</text></svg>`
+                }
+            ];
+        }
+
+        function renderPage() {
+            const container = document.getElementById('pageContent');
+            
+            if (!isUnlocked()) {
+                container.innerHTML = `
+                    <div class="card locked-panel">
+                        <div class="li">🔒</div>
+                        <h2 style="font-size:20px">Logo Design is Locked</h2>
+                        <p class="muted" style="margin-top:8px;max-width:440px;margin-inline:auto">
+                            Complete the Color Selection stage first to unlock Logo Design.
+                        </p>
+                        <div class="btn-row" style="justify-content:center;margin-top:16px;">
+                            <button class="btn btn-primary" onclick="window.location.href='color.html'">Go to Color Selection</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const concepts = getLogoConcepts();
+            
+            container.innerHTML = `
+                <div class="card" style="margin-bottom:16px;">
+                    <div class="section-title">Design Brief <span class="pill pending"><span class="pd"></span>Pending</span></div>
+                    <p class="muted" style="font-size:13px;line-height:1.6">Three directions developed from your questionnaire and approved palette. Leave notes on any concept, then approve the one to move forward.</p>
+                </div>
+                <div class="grid cols-3" id="logoConcepts">
+                    ${concepts.map((c, i) => `
+                        <div class="concept" id="concept-${i}">
+                            <div class="preview">${c.svg}</div>
+                            <div class="pbody">
+                                <div class="ct">${c.name}</div>
+                                <div class="cd">${c.desc}</div>
+                                <textarea placeholder="Notes on this concept…" id="notes-${i}" onchange="saveFeedback(${i})"></textarea>
+                                <button class="btn btn-ghost" id="approveBtn-${i}" onclick="approveLogo(${i})">
+                                    ✅ Approve this concept
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Load saved feedback and approval status
+            loadSavedData();
+        }
+
+        async function loadSavedData() {
+            try {
+                const token = getToken();
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE}/logo/${projectId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    let approvedIndex = -1;
+                    
+                    data.forEach(item => {
+                        const textarea = document.getElementById(`notes-${item.concept_index}`);
+                        if (textarea && item.feedback) {
+                            textarea.value = item.feedback;
+                        }
+                        if (item.is_approved) {
+                            approvedIndex = item.concept_index;
+                        }
+                    });
+                    
+                    if (approvedIndex >= 0) {
+                        selectedConcept = approvedIndex;
+                        updateButtons(approvedIndex);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function updateButtons(approvedIndex) {
+            // Reset all buttons
+            document.querySelectorAll('.concept .btn').forEach((btn, index) => {
+                btn.className = 'btn btn-ghost';
+                btn.textContent = '✅ Approve this concept';
+                btn.disabled = false;
+            });
+            
+            // Mark the approved one
+            const btn = document.getElementById(`approveBtn-${approvedIndex}`);
+            if (btn) {
+                btn.className = 'btn btn-success';
+                btn.textContent = '✅ Selected';
+                btn.disabled = true;
+            }
+        }
+
+        async function saveFeedback(index) {
+            try {
+                const token = getToken();
+                if (!token) {
+                    showNotification('⚠️ Please login first');
+                    return;
+                }
+
+                const textarea = document.getElementById(`notes-${index}`);
+                const feedback = textarea ? textarea.value : '';
+
+                const response = await fetch(`${API_BASE}/logo/${projectId}/feedback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ conceptIndex: index, feedback })
+                });
+
+                if (response.ok) {
+                    showNotification('💾 Feedback saved!');
+                }
+            } catch (error) {
+                console.error('Error saving feedback:', error);
+            }
+        }
+
+        async function approveLogo(index) {
+            // Prevent double submission
+            if (isSubmitting) return;
+            isSubmitting = true;
+            
+            try {
+                const token = getToken();
+                if (!token) {
+                    showNotification('⚠️ Please login first');
+                    isSubmitting = false;
+                    return;
+                }
+
+                console.log('📤 Approving concept:', index);
+
+                // First, reset all approvals in database
+                await fetch(`${API_BASE}/logo/${projectId}/reset`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({})
+                });
+
+                // Then approve selected concept
+                const response = await fetch(`${API_BASE}/logo/${projectId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ conceptIndex: index })
+                });
+
+                const result = await response.json();
+                console.log('📥 Approve response:', result);
+
+                if (response.ok) {
+                    selectedConcept = index;
+                    updateButtons(index);
+                    
+                    localStorage.setItem('approved_logo', index);
+                    const stages = JSON.parse(localStorage.getItem('stages_status')) || {};
+                    stages.logo = 'approved';
+                    stages.menu = 'pending';
+                    localStorage.setItem('stages_status', JSON.stringify(stages));
+                    
+                    showNotification('✅ Logo approved! Moving to Menu Design...');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'menu.html';
+                    }, 1500);
+                } else {
+                    showNotification('❌ Failed: ' + (result.error || 'Unknown error'));
+                    isSubmitting = false;
+                }
+            } catch (error) {
+                console.error('❌ Error approving logo:', error);
+                showNotification('❌ Error: ' + error.message);
+                isSubmitting = false;
+            }
+        }
+
+        function showNotification(msg) {
+            const existing = document.querySelector('.toast-notification');
+            if (existing) existing.remove();
+            
+            const div = document.createElement('div');
+            div.className = 'toast-notification';
+            div.textContent = msg;
+            document.body.appendChild(div);
+            
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transform = 'translateY(20px)';
+                setTimeout(() => div.remove(), 300);
+            }, 3000);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            document.getElementById('userNm').textContent = user.full_name || 'Demo User';
+            document.getElementById('userAv').textContent = (user.full_name || 'DU').substring(0, 2).toUpperCase();
+            
+            // Auto-detect project ID
+            projectId = parseInt(
+                localStorage.getItem('project_id') ||
+                localStorage.getItem('projectId') ||
+                '0'
+            );
+            if (!projectId) {
+                fetch(`${API_BASE}/projects`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                }).then(r => r.json()).then(projects => {
+                    if (projects && projects.length > 0) {
+                        projectId = projects[0].id;
+                        localStorage.setItem('project_id', projectId);
+                        localStorage.setItem('projectId', projectId);
+                        console.log('✅ Project ID auto-fetched:', projectId);
+                        loadLogosFromDB();
+                    }
+                }).catch(() => {});
+            }
+            renderPage();
+            
+            console.log('✅ Logo page loaded');
+            console.log('👤 User:', user);
+            console.log('📁 Project ID:', projectId);
+        });
+    </script>
+</body>
+</html>

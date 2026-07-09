@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deliverables — D'zine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- jsPDF CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* ... same styles as before ... */
+        .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+        .sidebar {
+            margin: var(--s4);
+            margin-right: 0;
+            border-radius: var(--r-xl);
+            padding: var(--s5) var(--s4);
+            position: sticky;
+            top: var(--s4);
+            height: calc(100vh - var(--s6));
+            display: flex;
+            flex-direction: column;
+            gap: var(--s4);
+            box-shadow: var(--glass-shadow);
+            background: var(--glass);
+            backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid var(--glass-border);
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: var(--s3);
+            padding: 0 var(--s2);
+        }
+        .brand .mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            flex: none;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 8px 18px -6px rgba(123,110,240,.7);
+        }
+        .brand .name { font-family: var(--font-display); font-weight: 800; font-size: 19px; }
+        .brand .sub { font-size: 10px; letter-spacing: .22em; color: var(--muted); font-weight: 600; margin-top: 3px; }
+        .nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--s3);
+            padding: 10px var(--s3);
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--ink-2);
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid transparent;
+            transition: all .18s;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.55); color: var(--ink); }
+        .nav-item.active {
+            background: var(--glass-strong);
+            color: var(--ink);
+            font-weight: 600;
+            border-color: var(--glass-border);
+        }
+        .nav-item .ico { font-size: 18px; flex: none; }
+        .nav-item .lbl { flex: 1; }
+        .badge { font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; background: #dcf3e8; color: #1d8d59; }
+        
+        .main { padding: var(--s4) var(--s5); min-width: 0; }
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: var(--s4);
+            margin-bottom: var(--s5);
+        }
+        .topbar h1 { font-size: 26px; font-weight: 800; }
+        .topbar .crumb { font-size: 12.5px; color: var(--ink-2); margin-top: 2px; }
+        .topbar .spacer { flex: 1; }
+        
+        .card {
+            border-radius: var(--r-lg);
+            padding: var(--s5);
+            box-shadow: var(--card-shadow);
+            background: var(--glass);
+            backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid var(--glass-border);
+        }
+        .grid { display: grid; gap: var(--s4); }
+        .cols-2 { grid-template-columns: 1fr 1fr; }
+        .cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: var(--s4); display: flex; align-items: center; gap: 10px; }
+        .muted { color: var(--ink-2); }
+        .tiny { font-size: 12px; }
+        
+        .deliverable-card {
+            background: var(--glass-strong);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--r-md);
+            padding: var(--s4);
+            display: flex;
+            align-items: center;
+            gap: var(--s3);
+            transition: all .2s;
+            cursor: pointer;
+        }
+        .deliverable-card:hover { transform: translateY(-2px); box-shadow: var(--card-shadow); }
+        .deliverable-card .icon { font-size: 32px; flex: none; }
+        .deliverable-card .info { flex: 1; }
+        .deliverable-card .info .title { font-weight: 700; font-size: 15px; }
+        .deliverable-card .info .desc { font-size: 12px; color: var(--ink-2); }
+        .deliverable-card .download-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all .2s;
+        }
+        .deliverable-card .download-btn:hover { background: var(--primary-ink); transform: scale(1.05); }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 11px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all .2s;
+        }
+        .btn-primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            box-shadow: 0 12px 24px -12px rgba(123,110,240,.9);
+        }
+        .btn-primary:hover { box-shadow: 0 14px 30px -10px rgba(123,110,240,.95); }
+        .btn-ghost {
+            background: var(--glass-strong);
+            border-color: var(--glass-border);
+            color: var(--ink);
+        }
+        .btn-ghost:hover { background: #fff; }
+        .btn-full { width: 100%; justify-content: center; }
+        .btn-success { background: #2bb673; color: #fff; }
+        .btn-success:hover { background: #239d60; }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--s2);
+            padding-top: var(--s3);
+            border-top: 1px solid var(--line);
+        }
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 14px 6px 6px;
+            border-radius: var(--r-pill);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+        }
+        .user-chip .av {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--primary));
+        }
+        .user-chip .nm { font-size: 13px; font-weight: 600; }
+        .btn-quiet {
+            background: transparent;
+            color: var(--ink-2);
+            padding: 10px 14px;
+            border: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-quiet:hover { color: var(--ink); background: rgba(255,255,255,0.5); border-radius: 8px; }
+        
+        .locked-panel {
+            text-align: center;
+            padding: var(--s7) var(--s5);
+        }
+        .locked-panel .li {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            margin: 0 auto var(--s4);
+            display: grid;
+            place-items: center;
+            background: rgba(154,163,184,.15);
+            color: var(--st-locked);
+            font-size: 32px;
+        }
+        
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 20px;
+            border-radius: 14px;
+            background: var(--glass-strong);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn .3s ease;
+            max-width: 400px;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .btn-row { display: flex; gap: var(--s3); flex-wrap: wrap; }
+        .download-all-btn { margin-bottom: var(--s4); }
+        
+        .banner {
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            color: #fff;
+            border: 0;
+            padding: var(--s5);
+            border-radius: var(--r-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--s3);
+            margin-bottom: var(--s4);
+        }
+        .banner h2 { color: #fff; font-size: 20px; margin: 0; }
+        .banner p { opacity: 0.85; font-size: 13px; margin: 4px 0 0; }
+        .banner .pct {
+            background: rgba(255,255,255,0.15);
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .banner .pct .num { font-size: 28px; font-weight: 800; }
+        .banner .pct .label { font-size: 10px; opacity: 0.7; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--s4);
+            margin-top: var(--s4);
+        }
+        .stats .stat {
+            text-align: center;
+            padding: var(--s4);
+            background: var(--glass-strong);
+            border-radius: var(--r-md);
+            border: 1px solid var(--glass-border);
+        }
+        .stats .stat .num { font-size: 24px; font-weight: 800; color: var(--primary); }
+        .stats .stat .label { font-size: 11px; color: var(--ink-2); }
+        
+        /* Gallery for uploaded images */
+        .upload-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--s3);
+            margin-top: var(--s4);
+        }
+        .upload-gallery .thumb {
+            border-radius: var(--r-md);
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-strong);
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: var(--s2);
+        }
+        .upload-gallery .thumb .file-icon { font-size: 40px; }
+        .upload-gallery .thumb .file-name { 
+            font-size: 10px; 
+            color: var(--ink-2); 
+            text-align: center;
+            margin-top: 4px;
+            word-break: break-all;
+        }
+        .upload-gallery .thumb .stage-tag {
+            font-size: 8px;
+            background: var(--primary);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 4px;
+        }
+        .section-subtitle { font-size: 13px; color: var(--ink-2); margin-bottom: var(--s3); }
+        
+        @media (max-width: 920px) {
+            .app { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main { padding: var(--s4); }
+            .cols-2, .cols-3 { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: 1fr; }
+            .upload-gallery { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+        }
+    </style>
+    <script src="../assets/js/config.js"></script>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar glass">
+            <div class="brand">
+                <div class="mark">D</div>
+                <div>
+                    <div class="name">D'zine</div>
+                    <div class="sub">BRAND STUDIO</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <div class="nav-item" onclick="window.location.href='dashboard.html'">
+                    <span class="ico">📊</span><span class="lbl">Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='questionnaire.html'">
+                    <span class="ico">📋</span><span class="lbl">Questionnaire</span>
+                    <span class="badge">Approved</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='color.html'">
+                    <span class="ico">🎨</span><span class="lbl">Color Selection</span>
+                    <span class="badge">Approved</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='logo.html'">
+                    <span class="ico">✍️</span><span class="lbl">Logo Design</span>
+                    <span class="badge">Approved</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='menu.html'">
+                    <span class="ico">📄</span><span class="lbl">Menu Design</span>
+                    <span class="badge">Approved</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='brochure.html'">
+                    <span class="ico">📘</span><span class="lbl">Brochure</span>
+                    <span class="badge">Approved</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='social.html'">
+                    <span class="ico">📱</span><span class="lbl">Social Media</span>
+                    <span class="badge">Approved</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='packaging.html'">
+                    <span class="ico">📦</span><span class="lbl">Packaging</span>
+                    <span class="badge">Approved</span>
+                </div>
+                <div class="nav-item active">
+                    <span class="ico">🎯</span><span class="lbl">Deliverables</span>
+                </div>
+            </nav>
+            <div class="user-section">
+                <div class="user-chip">
+                    <div class="av" id="userAv">DU</div>
+                    <div class="nm" id="userNm">Demo User</div>
+                </div>
+                <button class="btn-quiet" onclick="logout()">Sign Out</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <div class="crumb">D'zine Brand Studio · Brand Identity</div>
+                    <h1>Deliverables</h1>
+                </div>
+                <div class="spacer"></div>
+            </header>
+
+            <div id="deliverablesContent"></div>
+        </main>
+    </div>
+
+    <script>
+        // ============================================
+        // DELIVERABLES WITH UPLOADED IMAGES
+        // ============================================
+        
+        const { jsPDF } = window.jspdf;
+        const API_BASE = CONFIG.API_BASE;
+        let projectId = 1;
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function getUser() {
+            try {
+                const data = localStorage.getItem('user');
+                return data ? JSON.parse(data) : null;
+            } catch(e) { return null; }
+        }
+
+        function getColors() {
+            return JSON.parse(localStorage.getItem('color_palette')) || {
+                primary: '#7b6ef0',
+                secondary: '#1d2433',
+                accent: '#5b8def',
+                neutral: '#eef0f4'
+            };
+        }
+
+        function getStages() {
+            return JSON.parse(localStorage.getItem('stages_status')) || {};
+        }
+
+        function isComplete() {
+            const stages = getStages();
+            const required = ['questionnaire', 'color', 'logo', 'menu', 'brochure', 'social', 'packaging'];
+            return required.every(key => stages[key] === 'approved');
+        }
+
+        function getProgress() {
+            const stages = getStages();
+            const total = Object.keys(stages).length;
+            const done = Object.values(stages).filter(s => s === 'approved').length;
+            return Math.round((done / total) * 100);
+        }
+
+        // ============================================
+        // FETCH UPLOADED FILES FROM DATABASE
+        // ============================================
+        async function fetchUploads() {
+            try {
+                const token = getToken();
+                if (!token) return {};
+
+                const stages = ['menu', 'brochure', 'social', 'packaging'];
+                const result = {};
+
+                for (const stage of stages) {
+                    const response = await fetch(`${API_BASE}/uploads/${projectId}/${stage}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        result[stage] = await response.json();
+                    } else {
+                        result[stage] = [];
+                    }
+                }
+                return result;
+            } catch (error) {
+                console.error('Error fetching uploads:', error);
+                return {};
+            }
+        }
+
+        // ============================================
+        // GENERATE PDF
+        // ============================================
+        function generatePDF(title, content) {
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const colors = getColors();
+            const user = getUser();
+            
+            doc.setFillColor(123, 110, 240);
+            doc.rect(0, 0, 210, 297, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(36);
+            doc.text('D\'zine', 105, 80, { align: 'center' });
+            
+            doc.setFontSize(14);
+            doc.text('Brand Identity Package', 105, 100, { align: 'center' });
+            
+            doc.setFontSize(16);
+            doc.text(title, 105, 140, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.text(`Client: ${user?.full_name || 'Demo User'}`, 105, 170, { align: 'center' });
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 105, 185, { align: 'center' });
+            
+            doc.addPage();
+            doc.setTextColor(30, 30, 30);
+            
+            doc.setFontSize(24);
+            doc.text(title, 20, 30);
+            
+            doc.setDrawColor(123, 110, 240);
+            doc.setLineWidth(1);
+            doc.line(20, 35, 190, 35);
+            
+            doc.setFontSize(12);
+            let y = 55;
+            
+            const lines = content.split('\n');
+            for (const line of lines) {
+                if (line.trim()) {
+                    const wrapped = doc.splitTextToSize(line, 170);
+                    doc.text(wrapped, 20, y);
+                    y += 7 * wrapped.length;
+                } else {
+                    y += 5;
+                }
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+            }
+            
+            doc.setFontSize(10);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Confidential - D\'zine Brand Studio', 105, 285, { align: 'center' });
+            
+            doc.save(`${title.toLowerCase().replace(/ /g, '-')}.pdf`);
+            showNotification(`✅ ${title} downloaded as PDF!`);
+        }
+
+        // ============================================
+        // DOWNLOAD FUNCTIONS
+        // ============================================
+        function downloadBrandGuidelines() {
+            const user = getUser();
+            const colors = getColors();
+            const stages = getStages();
+            
+            const content = `
+                BRAND GUIDELINES
+                =================
+                
+                Client: ${user?.full_name || 'Demo User'}
+                Company: ${user?.company_name || 'Not Specified'}
+                Project: Brand Identity Project
+                Date: ${new Date().toLocaleDateString()}
+                
+                ----------------------------------------
+                
+                BRAND COLORS
+                ------------
+                Primary:   ${colors.primary || '#7b6ef0'}
+                Secondary: ${colors.secondary || '#1d2433'}
+                Accent:    ${colors.accent || '#5b8def'}
+                Neutral:   ${colors.neutral || '#eef0f4'}
+                
+                ----------------------------------------
+                
+                COMPLETED STAGES
+                ----------------
+                ${Object.keys(stages).filter(k => stages[k] === 'approved').map(k => '✅ ' + k.charAt(0).toUpperCase() + k.slice(1)).join('\n')}
+                
+                Progress: ${getProgress()}%
+                
+                ----------------------------------------
+                
+                ASSET PACKAGE
+                -------------
+                📘 Brand Guidelines
+                ✍️ Logo Package
+                📱 Social Media Kit
+                📦 Packaging Assets
+                📄 Source Files
+                
+                ----------------------------------------
+                
+                All brand assets are ready for use.
+                For any questions, contact the studio.
+                
+                © ${new Date().getFullYear()} D'zine Brand Studio
+            `;
+            generatePDF('Brand Guidelines', content);
+        }
+
+        function downloadLogoPackage() {
+            const colors = getColors();
+            const logoIndex = localStorage.getItem('approved_logo') || 0;
+            const logos = ['Wordmark', 'Monogram Tile', 'Spark Mark'];
+            
+            const content = `
+                LOGO PACKAGE
+                ============
+                
+                Approved Logo: ${logos[parseInt(logoIndex)] || logos[0]}
+                
+                BRAND COLORS
+                ------------
+                Primary:   ${colors.primary || '#7b6ef0'}
+                Secondary: ${colors.secondary || '#1d2433'}
+                Accent:    ${colors.accent || '#5b8def'}
+                
+                FORMATS INCLUDED
+                ----------------
+                ✅ SVG - Vector format (scalable)
+                ✅ PNG - High resolution (300 DPI)
+                ✅ EPS - Print ready
+                ✅ AI - Adobe Illustrator source
+                
+                VARIATIONS
+                ----------
+                1. Full Color
+                2. Monochrome
+                3. Reversed (White on dark)
+                
+                USAGE GUIDELINES
+                ----------------
+                - Do not distort or stretch the logo
+                - Maintain clear space around logo
+                - Use approved colors only
+                
+                © ${new Date().getFullYear()} D'zine Brand Studio
+            `;
+            generatePDF('Logo Package', content);
+        }
+
+        function downloadSocialKit() {
+            const colors = getColors();
+            
+            const content = `
+                SOCIAL MEDIA KIT
+                ================
+                
+                Brand Colors: ${colors.primary || '#7b6ef0'}, ${colors.secondary || '#1d2433'}, ${colors.accent || '#5b8def'}
+                
+                ASSET LIST
+                ----------
+                📸 Instagram Post       1080 × 1080 px
+                📸 Instagram Story      1080 × 1920 px
+                📘 Facebook Cover       820 × 312 px
+                💼 LinkedIn Banner      1584 × 396 px
+                🐦 Twitter Header       1500 × 500 px
+                
+                FORMAT
+                ------
+                All assets in PNG format with transparent backgrounds.
+                
+                USAGE NOTES
+                -----------
+                - Use brand colors consistently
+                - Keep text legible
+                - Follow platform guidelines
+                
+                © ${new Date().getFullYear()} D'zine Brand Studio
+            `;
+            generatePDF('Social Media Kit', content);
+        }
+
+        function downloadPackagingAssets() {
+            const colors = getColors();
+            
+            const content = `
+                PACKAGING ASSETS
+                ================
+                
+                Brand Colors: ${colors.primary || '#7b6ef0'}, ${colors.secondary || '#1d2433'}
+                
+                PRINT FILES
+                -----------
+                📦 Front Panel     Print-ready (PDF, 300 DPI)
+                📦 Back Panel      Print-ready (PDF, 300 DPI)
+                📦 Side Panels     Print-ready (PDF, 300 DPI)
+                📦 3D Mockup       Preview (PNG, 72 DPI)
+                
+                PRINT SPECIFICATIONS
+                -------------------
+                ✅ Color Mode: CMYK
+                ✅ Bleed: 3mm
+                ✅ Resolution: 300 DPI
+                ✅ File Format: PDF/X-1a
+                
+                INCLUDED
+                --------
+                - Editable AI template
+                - Print-ready PDF files
+                - Mockup for client approval
+                
+                © ${new Date().getFullYear()} D'zine Brand Studio
+            `;
+            generatePDF('Packaging Assets', content);
+        }
+
+        function downloadSourceFiles() {
+            const user = getUser();
+            
+            const content = `
+                SOURCE FILES
+                ============
+                
+                Client: ${user?.full_name || 'Demo User'}
+                Project: Brand Identity Project
+                
+                FILES INCLUDED
+                --------------
+                📄 brand-guidelines.ai    Adobe Illustrator CC 2023
+                📄 logo-package.psd       Adobe Photoshop CC 2023
+                📄 social-kit.fig         Figma (Latest)
+                📄 packaging.cdr          CorelDRAW 2023
+                📄 brand-fonts.zip        Licensed Fonts
+                
+                FILE ORGANIZATION
+                -----------------
+                /source-files/
+                ├── ai/
+                │   └── brand-guidelines.ai
+                ├── psd/
+                │   └── logo-package.psd
+                ├── figma/
+                │   └── social-kit.fig
+                └── fonts/
+                    └── brand-fonts.zip
+                
+                NOTES
+                -----
+                - All files are fully editable
+                - Fonts are licensed and included
+                - Contact studio for any missing files
+                
+                © ${new Date().getFullYear()} D'zine Brand Studio
+            `;
+            generatePDF('Source Files', content);
+        }
+
+        function downloadAllAssets() {
+            showNotification('📦 Downloading all 5 PDF assets...');
+            setTimeout(downloadBrandGuidelines, 500);
+            setTimeout(downloadLogoPackage, 1200);
+            setTimeout(downloadSocialKit, 1900);
+            setTimeout(downloadPackagingAssets, 2600);
+            setTimeout(downloadSourceFiles, 3300);
+        }
+
+        // ============================================
+        // NOTIFICATION
+        // ============================================
+        function showNotification(msg) {
+            const existing = document.querySelector('.toast-notification');
+            if (existing) existing.remove();
+            const div = document.createElement('div');
+            div.className = 'toast-notification';
+            div.textContent = msg;
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transform = 'translateY(20px)';
+                setTimeout(() => div.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================
+        // LOGOUT
+        // ============================================
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // ============================================
+        // RENDER
+        // ============================================
+        async function renderDeliverables() {
+            const container = document.getElementById('deliverablesContent');
+            const complete = isComplete();
+            const pct = getProgress();
+            const user = getUser();
+            
+            if (!complete) {
+                container.innerHTML = `
+                    <div class="card locked-panel">
+                        <div class="li">🔒</div>
+                        <h2 style="font-size:20px">Deliverables Unlock at the Finish Line</h2>
+                        <p class="muted" style="margin-top:8px;max-width:440px;margin-inline:auto">
+                            Complete all 7 stages to access your final brand package.
+                        </p>
+                        <div class="btn-row" style="justify-content:center;margin-top:16px;">
+                            <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">View Progress</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Fetch uploaded files
+            const uploads = await fetchUploads();
+            
+            // Count total uploads
+            let totalUploads = 0;
+            const stageNames = {
+                menu: 'Menu Design',
+                brochure: 'Brochure',
+                social: 'Social Media',
+                packaging: 'Packaging'
+            };
+            
+            // Build gallery HTML
+            let galleryHTML = '';
+            for (const [stage, files] of Object.entries(uploads)) {
+                if (files && files.length > 0) {
+                    totalUploads += files.length;
+                    galleryHTML += `
+                        <div style="margin-bottom:var(--s4);">
+                            <h4 style="font-size:13px;font-weight:600;margin-bottom:8px;">📁 ${stageNames[stage] || stage}</h4>
+                            <div class="upload-gallery">
+                                ${files.map(f => `
+                                    <div class="thumb">
+                                        <div class="file-icon">📄</div>
+                                        <div class="file-name">${f.file_name}</div>
+                                        <span class="stage-tag">${stage}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            const items = [
+                { icon: '📘', title: 'Brand Guidelines', desc: 'Complete brand book with colors and fonts', fn: downloadBrandGuidelines },
+                { icon: '✍️', title: 'Logo Package', desc: 'SVG, PNG, EPS formats', fn: downloadLogoPackage },
+                { icon: '📱', title: 'Social Media Kit', desc: 'Pre-sized assets for all platforms', fn: downloadSocialKit },
+                { icon: '📦', title: 'Packaging Assets', desc: 'Print-ready packaging files', fn: downloadPackagingAssets },
+                { icon: '📄', title: 'Source Files', desc: 'Editable AI, PSD, FIG files', fn: downloadSourceFiles }
+            ];
+
+            container.innerHTML = `
+                <!-- Banner -->
+                <div class="banner">
+                    <div>
+                        <h2>🎉 Project Complete!</h2>
+                        <p>${user?.full_name || 'Client'}, your brand package is ready to download.</p>
+                    </div>
+                    <div class="pct">
+                        <div class="num">${pct}%</div>
+                        <div class="label">Complete</div>
+                    </div>
+                </div>
+
+                <!-- Download All -->
+                <button class="btn btn-primary btn-full download-all-btn" onclick="downloadAllAssets()">
+                    ⬇️ Download All Assets (PDF)
+                </button>
+
+                <!-- Uploaded Files Gallery -->
+                ${totalUploads > 0 ? `
+                    <div class="card" style="margin-top:16px;">
+                        <div class="section-title">📎 Uploaded Design Files</div>
+                        <p class="section-subtitle">${totalUploads} file(s) uploaded during the project.</p>
+                        ${galleryHTML}
+                    </div>
+                ` : `
+                    <div class="card" style="margin-top:16px;text-align:center;padding:var(--s5);">
+                        <div style="font-size:32px;margin-bottom:8px;">📤</div>
+                        <p class="muted">No design files uploaded yet.</p>
+                    </div>
+                `}
+
+                <!-- Individual Items -->
+                <div class="grid cols-2" style="margin-top:16px;">
+                    ${items.map(d => `
+                        <div class="deliverable-card" onclick="${d.fn.name}()">
+                            <div class="icon">${d.icon}</div>
+                            <div class="info">
+                                <div class="title">${d.title}</div>
+                                <div class="desc">${d.desc}</div>
+                            </div>
+                            <button class="download-btn">📄</button>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- Stats -->
+                <div class="stats">
+                    <div class="stat"><div class="num">7</div><div class="label">Stages Complete</div></div>
+                    <div class="stat"><div class="num">${totalUploads}</div><div class="label">Files Uploaded</div></div>
+                    <div class="stat"><div class="num">✅</div><div class="label">Ready to Download</div></div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('userNm').textContent = user.full_name || 'Demo User';
+            document.getElementById('userAv').textContent = (user.full_name || 'DU').substring(0, 2).toUpperCase();
+            
+            // Auto-detect project ID from localStorage or API
+            projectId = parseInt(
+                localStorage.getItem('project_id') ||
+                localStorage.getItem('projectId') ||
+                '0'
+            );
+            if (!projectId) {
+                fetch(`${API_BASE}/projects`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                }).then(r => r.json()).then(projects => {
+                    if (projects && projects.length > 0) {
+                        projectId = projects[0].id;
+                        localStorage.setItem('project_id', projectId);
+                        localStorage.setItem('projectId', projectId);
+                        console.log('✅ Project ID auto-fetched:', projectId);
+                    }
+                }).catch(() => {});
+            }
+            renderDeliverables();
+        });
+    </script>
+</body>
+</html>

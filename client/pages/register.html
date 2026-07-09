@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started — D'zine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .auth-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+            padding: var(--s4);
+        }
+        .auth-card {
+            padding: var(--s6);
+            border-radius: var(--r-lg);
+            box-shadow: var(--glass-shadow);
+        }
+        .auth-header { text-align: center; margin-bottom: var(--s6); }
+        .auth-header .brand { display: flex; justify-content: center; align-items: center; gap: var(--s3); margin-bottom: var(--s4); }
+        .auth-header .mark {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 22px;
+        }
+        .auth-header h1 { font-size: 24px; margin-bottom: var(--s2); }
+        .auth-header p { color: var(--ink-2); }
+        .form-group { margin-bottom: var(--s4); }
+        .form-group label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--ink-2);
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--ink);
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.7);
+            outline: none;
+        }
+        .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(123,110,240,.15);
+        }
+        .btn-full { width: 100%; justify-content: center; }
+        .auth-footer {
+            text-align: center;
+            margin-top: var(--s4);
+            font-size: 14px;
+            color: var(--ink-2);
+        }
+        .auth-footer a { color: var(--primary); font-weight: 600; }
+        #registerMessage {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: var(--s3);
+            display: none;
+        }
+        #registerMessage.error { display: block; background: #fee; color: #c00; border: 1px solid #fcc; }
+        #registerMessage.success { display: block; background: #efe; color: #080; border: 1px solid #cfc; }
+    </style>
+    <script src="../assets/js/config.js"></script>
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card glass">
+            <div class="auth-header">
+                <div class="brand">
+                    <div class="mark">D</div>
+                    <div>
+                        <div class="name" style="font-family:var(--font-display);font-weight:800;font-size:20px;">D'zine</div>
+                        <div class="sub" style="font-size:10px;letter-spacing:.22em;color:var(--muted);font-weight:600;">BRAND STUDIO</div>
+                    </div>
+                </div>
+                <h1>Get Started</h1>
+                <p>Create your account and start your brand journey</p>
+            </div>
+            
+            <div id="registerMessage"></div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="regName" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input type="text" id="regCompany" placeholder="Your Company">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="regEmail" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="regPassword" placeholder="Create a password" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="regConfirm" placeholder="Confirm password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+            </form>
+            
+            <div class="auth-footer">
+                Already have an account? <a href="login.html">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/app.js"></script>
+    <script>
+        const registerBtn = document.querySelector('#registerForm button[type="submit"]');
+
+        function showMessage(type, text) {
+            const msg = document.getElementById('registerMessage');
+            msg.className = type;
+            msg.textContent = text;
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const full_name    = document.getElementById('regName').value.trim();
+            const company_name = document.getElementById('regCompany').value.trim();
+            const email        = document.getElementById('regEmail').value.trim().toLowerCase();
+            const password     = document.getElementById('regPassword').value;
+            const confirm      = document.getElementById('regConfirm').value;
+
+            // Client-side validation
+            if (!full_name || !email || !password) {
+                showMessage('error', '❌ Please fill in all required fields');
+                return;
+            }
+            if (password !== confirm) {
+                showMessage('error', '❌ Passwords do not match');
+                return;
+            }
+            if (password.length < 6) {
+                showMessage('error', '❌ Password must be at least 6 characters');
+                return;
+            }
+
+            showMessage('loading', '⏳ Creating your account...');
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Please wait...';
+
+            try {
+                const response = await fetch(`${CONFIG.API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, full_name, company_name })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.token) {
+                    // Save auth data immediately so user is logged in
+                    localStorage.setItem('token', result.token);
+                    localStorage.setItem('user', JSON.stringify(result.user));
+
+                    showMessage('success', '✅ Account created! Redirecting to dashboard...');
+
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1200);
+                } else {
+                    showMessage('error', '❌ ' + (result.error || 'Registration failed. Please try again.'));
+                    registerBtn.disabled = false;
+                    registerBtn.textContent = 'Create Account';
+                }
+            } catch (err) {
+                console.error('Register error:', err);
+                showMessage('error', '❌ Cannot connect to server. Make sure backend is running.');
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Create Account';
+            }
+        });
+    </script>
+</body>
+</html>

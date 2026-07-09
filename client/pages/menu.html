@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Design — D'zine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+        .sidebar {
+            margin: var(--s4);
+            margin-right: 0;
+            border-radius: var(--r-xl);
+            padding: var(--s5) var(--s4);
+            position: sticky;
+            top: var(--s4);
+            height: calc(100vh - var(--s6));
+            display: flex;
+            flex-direction: column;
+            gap: var(--s4);
+            box-shadow: var(--glass-shadow);
+            background: var(--glass);
+            backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid var(--glass-border);
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: var(--s3);
+            padding: 0 var(--s2);
+        }
+        .brand .mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            flex: none;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 8px 18px -6px rgba(123,110,240,.7);
+        }
+        .brand .name { font-family: var(--font-display); font-weight: 800; font-size: 19px; }
+        .brand .sub { font-size: 10px; letter-spacing: .22em; color: var(--muted); font-weight: 600; margin-top: 3px; }
+        .nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--s3);
+            padding: 10px var(--s3);
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--ink-2);
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid transparent;
+            transition: all .18s;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.55); color: var(--ink); }
+        .nav-item.active {
+            background: var(--glass-strong);
+            color: var(--ink);
+            font-weight: 600;
+            border-color: var(--glass-border);
+        }
+        .nav-item .ico { font-size: 18px; flex: none; }
+        .nav-item .lbl { flex: 1; }
+        .badge {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+        .badge.pending { background: #fdeede; color: #a4661f; }
+        .badge.approved { background: #dcf3e8; color: #1d8d59; }
+        .badge.locked { background: #eef0f4; color: var(--st-locked); }
+        .badge.in-review { background: var(--accent-blue-soft); color: #2f5fae; }
+
+        .main { padding: var(--s4) var(--s5); min-width: 0; }
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: var(--s4);
+            margin-bottom: var(--s5);
+        }
+        .topbar h1 { font-size: 26px; font-weight: 800; }
+        .topbar .crumb { font-size: 12.5px; color: var(--ink-2); margin-top: 2px; }
+        .topbar .spacer { flex: 1; }
+        
+        .card {
+            border-radius: var(--r-lg);
+            padding: var(--s5);
+            box-shadow: var(--card-shadow);
+            background: var(--glass);
+            backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid var(--glass-border);
+            margin-bottom: 16px;
+        }
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: var(--s4); display: flex; align-items: center; gap: 10px; }
+        .muted { color: var(--ink-2); }
+        .tiny { font-size: 12px; }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 11px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all .2s;
+        }
+        .btn-primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
+            box-shadow: 0 12px 24px -12px rgba(123,110,240,.9);
+        }
+        .btn-primary:hover { box-shadow: 0 14px 30px -10px rgba(123,110,240,.95); }
+        .btn-ghost {
+            background: var(--glass-strong);
+            border-color: var(--glass-border);
+            color: var(--ink);
+        }
+        .btn-ghost:hover { background: #fff; }
+        .btn-success { background: #2bb673; color: #fff; }
+        .btn-success:hover { background: #239d60; }
+        .btn-row { display: flex; gap: var(--s3); flex-wrap: wrap; margin-top: var(--s4); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-quiet {
+            background: transparent;
+            color: var(--ink-2);
+            padding: 10px 14px;
+            border: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-quiet:hover { color: var(--ink); background: rgba(255,255,255,0.5); border-radius: 8px; }
+        
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 11px;
+            border-radius: var(--r-pill);
+            letter-spacing: .02em;
+        }
+        .pill .pd { width: 7px; height: 7px; border-radius: 50%; }
+        .pill.locked { background: #eef0f4; color: var(--st-locked); }
+        .pill.locked .pd { background: var(--st-locked); }
+        .pill.pending { background: #fdeede; color: #a4661f; }
+        .pill.pending .pd { background: var(--st-pending); }
+        .pill.in-review { background: var(--accent-blue-soft); color: #2f5fae; }
+        .pill.in-review .pd { background: var(--st-review); }
+        .pill.approved { background: #dcf3e8; color: #1d8d59; }
+        .pill.approved .pd { background: var(--st-approved); }
+        
+        .drop {
+            border: 2px dashed rgba(123,110,240,.3);
+            border-radius: var(--r-md);
+            padding: var(--s6) var(--s4);
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s;
+            background: rgba(255,255,255,.4);
+            margin-bottom: 16px;
+        }
+        .drop:hover {
+            background: rgba(123,110,240,.07);
+            border-color: var(--primary);
+        }
+        .drop .di { font-size: 36px; margin-bottom: 8px; }
+        .drop .dt { font-size: 14px; font-weight: 600; }
+        .drop .ds { font-size: 12px; color: var(--muted); margin-top: 4px; }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: var(--s3);
+            margin-top: var(--s4);
+        }
+        .thumb {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            background: #fff;
+            position: relative;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .thumb .file-icon { font-size: 32px; }
+        .thumb .cap {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(29,36,51,.65);
+            color: #fff;
+            font-size: 10.5px;
+            padding: 4px 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .thumb .rm {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(29,36,51,.6);
+            color: #fff;
+            border: 0;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .locked-panel {
+            text-align: center;
+            padding: var(--s7) var(--s5);
+        }
+        .locked-panel .li {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            margin: 0 auto var(--s4);
+            display: grid;
+            place-items: center;
+            background: rgba(154,163,184,.15);
+            color: var(--st-locked);
+            font-size: 32px;
+        }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--s2);
+            padding-top: var(--s3);
+            border-top: 1px solid var(--line);
+        }
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 14px 6px 6px;
+            border-radius: var(--r-pill);
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--glass-border);
+        }
+        .user-chip .av {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--primary));
+        }
+        .user-chip .nm { font-size: 13px; font-weight: 600; }
+        
+        .fbk {
+            margin-top: var(--s4);
+        }
+        .fbk .item {
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,.55);
+            border: 1px solid var(--line);
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .fbk .item .who {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+        
+        textarea {
+            width: 100%;
+            font-family: inherit;
+            font-size: 13px;
+            color: var(--ink);
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.7);
+            outline: none;
+            resize: vertical;
+            min-height: 70px;
+        }
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(123,110,240,.15);
+        }
+        
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 20px;
+            border-radius: 14px;
+            background: var(--glass-strong);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn .3s ease;
+            max-width: 400px;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 920px) {
+            .app { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main { padding: var(--s4); }
+            .gallery { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+        }
+    </style>
+    <script src="../assets/js/config.js"></script>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar glass">
+            <div class="brand">
+                <div class="mark">D</div>
+                <div>
+                    <div class="name">D'zine</div>
+                    <div class="sub">BRAND STUDIO</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <div class="nav-item" onclick="window.location.href='dashboard.html'">
+                    <span class="ico">📊</span><span class="lbl">Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='questionnaire.html'">
+                    <span class="ico">📋</span><span class="lbl">Questionnaire</span>
+                    <span class="badge approved">Approved</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='color.html'">
+                    <span class="ico">🎨</span><span class="lbl">Color Selection</span>
+                    <span class="badge approved">Approved</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='logo.html'">
+                    <span class="ico">✍️</span><span class="lbl">Logo Design</span>
+                    <span class="badge approved">Approved</span>
+                </div>
+                <div class="nav-item active">
+                    <span class="ico">📄</span><span class="lbl">Menu Design</span>
+                    <span class="badge pending">Pending</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='brochure.html'">
+                    <span class="ico">📘</span><span class="lbl">Brochure</span>
+                    <span class="badge locked">Locked</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='social.html'">
+                    <span class="ico">📱</span><span class="lbl">Social Media</span>
+                    <span class="badge locked">Locked</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='packaging.html'">
+                    <span class="ico">📦</span><span class="lbl">Packaging</span>
+                    <span class="badge locked">Locked</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='deliverables.html'">
+                    <span class="ico">🎯</span><span class="lbl">Deliverables</span>
+                </div>
+            </nav>
+            <div class="user-section">
+                <div class="user-chip">
+                    <div class="av" id="userAv">DU</div>
+                    <div class="nm" id="userNm">Demo User</div>
+                </div>
+                <button class="btn-quiet" onclick="logout()">Sign Out</button>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div>
+                    <div class="crumb">D'zine Brand Studio · Brand Identity</div>
+                    <h1>Menu Design</h1>
+                </div>
+                <div class="spacer"></div>
+            </header>
+
+            <div id="pageContent">
+                <!-- Rendered by JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ============================================
+        // MENU DESIGN - WITH DATABASE API
+        // ============================================
+        
+        const API_BASE = CONFIG.API_BASE;
+        const STAGE_KEY = 'menu';
+        const STAGE_LABEL = 'Menu Design';
+        let projectId = 1;
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function getUser() {
+            try {
+                const data = localStorage.getItem('user');
+                return data ? JSON.parse(data) : null;
+            } catch(e) { return null; }
+        }
+
+        function isUnlocked() {
+            const stages = JSON.parse(localStorage.getItem('stages_status')) || {};
+            return stages.logo === 'approved';
+        }
+
+        function renderPage() {
+            const container = document.getElementById('pageContent');
+            
+            if (!isUnlocked()) {
+                container.innerHTML = `
+                    <div class="card locked-panel">
+                        <div class="li">🔒</div>
+                        <h2 style="font-size:20px">${STAGE_LABEL} is Locked</h2>
+                        <p class="muted" style="margin-top:8px;max-width:440px;margin-inline:auto">
+                            Complete the Logo Design stage first to unlock Menu Design.
+                        </p>
+                        <div class="btn-row" style="justify-content:center;margin-top:16px;">
+                            <button class="btn btn-primary" onclick="window.location.href='logo.html'">Go to Logo Design</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const stageStatus = JSON.parse(localStorage.getItem('stages_status')) || {};
+            const status = stageStatus[STAGE_KEY] || 'pending';
+            const isApproved = status === 'approved';
+            
+            // Load uploads from API
+            loadUploads(isApproved);
+            
+            container.innerHTML = `
+                <div class="card">
+                    <div class="section-title">
+                        ${STAGE_LABEL} 
+                        <span class="pill ${status}">
+                            <span class="pd"></span>
+                            ${status.charAt(0).toUpperCase() + status.slice(1)}
+                        </span>
+                    </div>
+                    <p class="muted tiny" style="margin:-8px 0 14px">Upload your menu designs for review. Add feedback before approving.</p>
+                    
+                    ${!isApproved ? `
+                        <div class="drop" onclick="document.getElementById('fileInput').click()">
+                            <div class="di">📤</div>
+                            <div class="dt">Drop files or click to upload</div>
+                            <div class="ds">PNG · JPG · SVG · PDF — images preview instantly</div>
+                            <input type="file" id="fileInput" multiple accept=".png,.jpg,.jpeg,.svg,.pdf" style="display:none" onchange="handleUpload(event)"/>
+                        </div>
+                    ` : '<p style="padding:10px 0;color:var(--st-approved);">✅ Stage approved - uploads locked</p>'}
+                    
+                    <div id="galleryContainer"></div>
+                    
+                    <div class="fbk" id="feedbackContainer"></div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">💬 Feedback</div>
+                    <textarea id="feedbackInput" placeholder="Share your feedback with the studio..."></textarea>
+                    <div class="btn-row">
+                        <button class="btn btn-ghost" onclick="sendFeedback()">Send Feedback</button>
+                        ${!isApproved ? `
+                            <button class="btn btn-primary" onclick="approveStage()">✅ Approve ${STAGE_LABEL}</button>
+                        ` : `
+                            <button class="btn btn-success" disabled>✅ Approved</button>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadUploads(isApproved) {
+            try {
+                const token = getToken();
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE}/uploads/${projectId}/${STAGE_KEY}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const uploads = await response.json();
+                    const container = document.getElementById('galleryContainer');
+                    
+                    if (uploads.length > 0) {
+                        container.innerHTML = `
+                            <div class="gallery">
+                                ${uploads.map(f => `
+                                    <div class="thumb">
+                                        <div class="file-icon">📄</div>
+                                        <div class="cap">${f.file_name}</div>
+                                        ${!isApproved ? `<button class="rm" onclick="removeFile(${f.id})">✕</button>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = '<p class="muted tiny" style="padding:10px 0;">No files uploaded yet.</p>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading uploads:', error);
+            }
+        }
+
+        async function handleUpload(event) {
+            const files = event.target.files;
+            if (!files.length) return;
+            
+            try {
+                const token = getToken();
+                if (!token) {
+                    showNotification('⚠️ Please login first');
+                    return;
+                }
+
+                for (let file of files) {
+                    const formData = new FormData();
+                    formData.append('uploadKey', STAGE_KEY);
+                    formData.append('fileName', file.name);
+                    formData.append('filePath', `/uploads/${STAGE_KEY}/${file.name}`);
+                    formData.append('fileType', file.type);
+                    formData.append('fileSize', file.size);
+
+                    const response = await fetch(`${API_BASE}/uploads/${projectId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        console.log('✅ File uploaded:', file.name);
+                    }
+                }
+
+                // Update stage status
+                const stages = JSON.parse(localStorage.getItem('stages_status')) || {};
+                if (stages[STAGE_KEY] === 'pending') {
+                    stages[STAGE_KEY] = 'in_review';
+                    localStorage.setItem('stages_status', JSON.stringify(stages));
+                }
+
+                showNotification(`📤 ${files.length} file(s) uploaded!`);
+                renderPage();
+            } catch (error) {
+                console.error('Upload error:', error);
+                showNotification('❌ Upload failed: ' + error.message);
+            }
+        }
+
+        async function removeFile(uploadId) {
+            try {
+                const token = getToken();
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE}/uploads/${uploadId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showNotification('🗑️ File deleted');
+                    renderPage();
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                showNotification('❌ Delete failed');
+            }
+        }
+
+        async function sendFeedback() {
+            const input = document.getElementById('feedbackInput');
+            const text = input.value.trim();
+            if (!text) {
+                showNotification('⚠️ Please type your feedback first.');
+                return;
+            }
+            
+            try {
+                const token = getToken();
+                if (!token) {
+                    showNotification('⚠️ Please login first');
+                    return;
+                }
+
+                const user = JSON.parse(localStorage.getItem('user')) || { full_name: 'Client' };
+                
+                // Save feedback to database
+                const response = await fetch(`${API_BASE}/feedback/${projectId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        sectionKey: STAGE_KEY,
+                        feedbackText: text,
+                        userName: user.full_name
+                    })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    const stages = JSON.parse(localStorage.getItem('stages_status')) || {};
+                    if (stages[STAGE_KEY] !== 'approved') {
+                        stages[STAGE_KEY] = 'in_review';
+                        localStorage.setItem('stages_status', JSON.stringify(stages));
+                    }
+                    showNotification('💬 Feedback sent to studio!');
+                    renderPage();
+                }
+            } catch (error) {
+                console.error('Feedback error:', error);
+                showNotification('❌ Failed to send feedback');
+            }
+        }
+
+        async function approveStage() {
+            try {
+                const token = getToken();
+                if (!token) {
+                    showNotification('⚠️ Please login first');
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/uploads/${projectId}/${STAGE_KEY}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await response.json();
+                console.log('📥 Approve response:', result);
+
+                if (response.ok) {
+                    const stages = JSON.parse(localStorage.getItem('stages_status')) || {};
+                    stages[STAGE_KEY] = 'approved';
+                    stages.brochure = 'pending';
+                    localStorage.setItem('stages_status', JSON.stringify(stages));
+                    
+                    const activities = JSON.parse(localStorage.getItem('activities')) || [];
+                    activities.unshift({
+                        text: `✅ ${STAGE_LABEL} approved!`,
+                        time: Date.now()
+                    });
+                    localStorage.setItem('activities', JSON.stringify(activities));
+                    
+                    showNotification(`✅ ${STAGE_LABEL} approved! Next: Brochure`);
+                    
+                    setTimeout(() => {
+                        window.location.href = 'brochure.html';
+                    }, 1500);
+                } else {
+                    showNotification(`❌ Failed: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Approve error:', error);
+                showNotification('❌ Error approving stage');
+            }
+        }
+
+        function showNotification(msg) {
+            const existing = document.querySelector('.toast-notification');
+            if (existing) existing.remove();
+            
+            const div = document.createElement('div');
+            div.className = 'toast-notification';
+            div.textContent = msg;
+            document.body.appendChild(div);
+            
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transform = 'translateY(20px)';
+                setTimeout(() => div.remove(), 300);
+            }, 3000);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            document.getElementById('userNm').textContent = user.full_name || 'Demo User';
+            document.getElementById('userAv').textContent = (user.full_name || 'DU').substring(0, 2).toUpperCase();
+            
+            // Auto-detect project ID from localStorage or API
+            projectId = parseInt(
+                localStorage.getItem('project_id') ||
+                localStorage.getItem('projectId') ||
+                '0'
+            );
+            if (!projectId) {
+                fetch(`${API_BASE}/projects`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                }).then(r => r.json()).then(projects => {
+                    if (projects && projects.length > 0) {
+                        projectId = projects[0].id;
+                        localStorage.setItem('project_id', projectId);
+                        localStorage.setItem('projectId', projectId);
+                        console.log('✅ Project ID auto-fetched:', projectId);
+                    }
+                }).catch(() => {});
+            }
+            renderPage();
+            
+            console.log(`✅ ${STAGE_LABEL} page loaded`);
+            console.log('👤 User:', user);
+            console.log('📁 Project ID:', projectId);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects — D'zine Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #dfe6fb; }
+
+        .admin-app {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+            gap: 0;
+        }
+
+        .sidebar {
+            margin: 16px 0 16px 16px;
+            border-radius: 24px;
+            padding: 24px 16px;
+            position: sticky;
+            top: 16px;
+            height: calc(100vh - 32px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 20px 60px -20px rgba(53,49,110,0.25);
+        }
+        .sidebar .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px;
+        }
+        .sidebar .brand .mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #7b6ef0, #9b76f0);
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 20px;
+            box-shadow: 0 8px 24px -8px rgba(123,110,240,0.5);
+        }
+        .sidebar .brand .name { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 20px; color: #1d2433; }
+        .sidebar .brand .sub { font-size: 9px; letter-spacing: 0.3em; color: #929bb0; font-weight: 600; text-transform: uppercase; }
+
+        .sidebar .nav-label { font-size: 10px; letter-spacing: 0.15em; font-weight: 700; color: #929bb0; padding: 0 12px; text-transform: uppercase; margin-top: 4px; }
+        .sidebar .nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .sidebar .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            cursor: pointer;
+            color: #5b6478;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid transparent;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .sidebar .nav-item:hover { background: rgba(255,255,255,0.7); color: #1d2433; transform: translateX(4px); }
+        .sidebar .nav-item.active {
+            background: rgba(255,255,255,0.85);
+            color: #1d2433;
+            font-weight: 600;
+            border-color: rgba(255,255,255,0.9);
+            box-shadow: 0 4px 16px -8px rgba(53,49,110,0.15);
+        }
+        .sidebar .nav-item .ico { font-size: 18px; width: 24px; text-align: center; flex: none; }
+        .sidebar .nav-item .badge {
+            margin-left: auto;
+            background: #7b6ef0;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 20px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .sidebar .user-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 8px 0;
+            border-top: 1px solid rgba(29,36,51,0.06);
+        }
+        .sidebar .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar .user-chip .av {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            background: linear-gradient(135deg, #5b8def, #7b6ef0);
+            box-shadow: 0 4px 12px -4px rgba(123,110,240,0.4);
+        }
+        .sidebar .user-chip .nm { font-size: 14px; font-weight: 600; color: #1d2433; }
+        .sidebar .user-chip .role { font-size: 11px; color: #929bb0; font-weight: 500; }
+        .sidebar .btn-quiet {
+            background: transparent;
+            border: none;
+            color: #929bb0;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 500;
+            border-radius: 10px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .sidebar .btn-quiet:hover { color: #1d2433; background: rgba(255,255,255,0.5); }
+
+        /* Main */
+        .main {
+            padding: 24px 32px 48px;
+            min-width: 0;
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .main-header h1 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: #1d2433;
+        }
+        .main-header h1 i { color: #7b6ef0; margin-right: 12px; }
+        .main-header p {
+            color: #5b6478;
+            font-size: 14px;
+            margin-top: 2px;
+        }
+        .main-header .actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #7b6ef0, #9b76f0);
+            color: #fff;
+            box-shadow: 0 8px 24px -8px rgba(123,110,240,0.4);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px -8px rgba(123,110,240,0.5); }
+        .btn-ghost {
+            background: rgba(255,255,255,0.7);
+            color: #1d2433;
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+        .btn-ghost:hover { background: rgba(255,255,255,0.9); }
+
+        .card {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.8);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 8px 32px -16px rgba(53,49,110,0.08);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .card-header h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1d2433;
+        }
+        .card-header .total {
+            font-size: 13px;
+            color: #5b6478;
+        }
+        .card-header .total strong {
+            color: #7b6ef0;
+            font-size: 18px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        table th {
+            text-align: left;
+            padding: 12px 16px;
+            color: #5b6478;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid rgba(29,36,51,0.06);
+        }
+        table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(29,36,51,0.04);
+            color: #1d2433;
+        }
+        table tr:hover { background: rgba(255,255,255,0.3); }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-badge.active { background: #dcf3e8; color: #1d8d59; }
+        .status-badge.pending { background: #fdeede; color: #a4661f; }
+        .status-badge.completed { background: #dbe7fb; color: #2f5fae; }
+        .status-badge.archived { background: #eef0f4; color: #929bb0; }
+
+        .progress-bar {
+            width: 100px;
+            height: 6px;
+            background: rgba(29,36,51,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #7b6ef0, #9b76f0);
+            transition: width 0.5s ease;
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            background: transparent;
+            color: #5b6478;
+            transition: all 0.2s;
+        }
+        .action-btn:hover { background: rgba(123,110,240,0.1); color: #7b6ef0; }
+        .action-btn.danger:hover { background: rgba(220,0,0,0.1); color: #c00; }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #929bb0;
+        }
+        .empty-state .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+        .empty-state h4 { font-size: 18px; color: #1d2433; margin-bottom: 4px; }
+        .empty-state p { font-size: 13px; }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.8);
+            flex: 1;
+            max-width: 320px;
+        }
+        .search-bar input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-family: inherit;
+            font-size: 13px;
+            color: #1d2433;
+            width: 100%;
+        }
+        .search-bar input::placeholder { color: #929bb0; }
+        .search-bar i { color: #929bb0; }
+
+        .client-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .client-cell .av {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 11px;
+            background: linear-gradient(135deg, #5b8def, #7b6ef0);
+            flex: none;
+        }
+        .client-cell .name { font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .admin-app { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main { padding: 16px; }
+            .main-header { flex-direction: column; align-items: flex-start; }
+            .search-bar { max-width: 100%; }
+        }
+    </style>
+    <script src="../../assets/js/config.js"></script>
+</head>
+<body>
+    <div class="admin-app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="mark">D</div>
+                <div>
+                    <div class="name">D'zine</div>
+                    <div class="sub">Admin Panel</div>
+                </div>
+            </div>
+
+            <div class="nav-label">Main</div>
+            <nav class="nav">
+                <div class="nav-item" onclick="window.location.href='admin-dashboard.html'">
+                    <span class="ico"><i class="fas fa-th-large"></i></span> Dashboard
+                </div>
+                <div class="nav-item" onclick="window.location.href='admin-clients.html'">
+                    <span class="ico"><i class="fas fa-users"></i></span> Clients
+                    <span class="badge" id="clientCount">0</span>
+                </div>
+                <div class="nav-item active">
+                    <span class="ico"><i class="fas fa-folder-open"></i></span> Projects
+                    <span class="badge" id="projectCount">0</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='admin-deliverables.html'">
+                    <span class="ico"><i class="fas fa-box"></i></span> Deliverables
+                </div>
+            </nav>
+
+            <div class="user-section">
+                <div class="user-chip">
+                    <div class="av" id="adminAv">AD</div>
+                    <div>
+                        <div class="nm" id="adminNm">Admin</div>
+                        <div class="role">Administrator</div>
+                    </div>
+                </div>
+                <button class="btn-quiet" onclick="logout()" title="Sign Out">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main">
+            <div class="main-header">
+                <div>
+                    <h1><i class="fas fa-folder-open"></i>Projects</h1>
+                    <p>Manage all client projects and track their progress.</p>
+                </div>
+                <div class="actions">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search projects..." oninput="filterProjects()">
+                    </div>
+                    <button class="btn btn-primary" onclick="openCreateModal()">
+                        <i class="fas fa-plus"></i> New Project
+                    </button>
+                </div>
+            </div>
+
+            <!-- Projects Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-list" style="color:#7b6ef0;margin-right:8px;"></i>All Projects</h3>
+                    <span class="total">Total: <strong id="totalProjects">0</strong></span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-folder"></i> Project</th>
+                                <th><i class="fas fa-user"></i> Client</th>
+                                <th><i class="fas fa-chart-line"></i> Progress</th>
+                                <th><i class="fas fa-tag"></i> Status</th>
+                                <th><i class="fas fa-calendar"></i> Created</th>
+                                <th style="text-align:center;"><i class="fas fa-cog"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projectsTable">
+                            <!-- Rendered by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = CONFIG.API_BASE;
+        let allProjects = [];
+
+        function getToken() { return localStorage.getItem('token'); }
+        function getUser() {
+            try { return JSON.parse(localStorage.getItem('user')); }
+            catch(e) { return null; }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'admin-login.html';
+        }
+
+        // ============================================
+        // LOAD PROJECTS
+        // ============================================
+        async function loadProjects() {
+            const user = getUser();
+            if (!user || user.role !== 'admin') {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            document.getElementById('adminNm').textContent = user.full_name || 'Admin';
+            document.getElementById('adminAv').textContent = (user.full_name || 'AD').substring(0, 2).toUpperCase();
+
+            try {
+                const token = getToken();
+                const res = await fetch(`${API_BASE}/admin/projects`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    allProjects = await res.json();
+                    renderProjects(allProjects);
+                }
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                // Fallback demo data
+                allProjects = [
+                    { id: 1, project_name: 'Saffron & Sage Brand Identity', client_name: 'Aria Khan', progress: 100, status: 'completed', created_at: '2026-06-01' },
+                    { id: 2, project_name: 'TechCorp Rebranding', client_name: 'John Doe', progress: 65, status: 'active', created_at: '2026-06-10' },
+                    { id: 3, project_name: 'Design Studio Website', client_name: 'Sarah Smith', progress: 30, status: 'pending', created_at: '2026-06-20' },
+                ];
+                renderProjects(allProjects);
+            }
+        }
+
+        // ============================================
+        // RENDER PROJECTS
+        // ============================================
+        function renderProjects(projects) {
+            const tbody = document.getElementById('projectsTable');
+            document.getElementById('projectCount').textContent = projects.length;
+            document.getElementById('totalProjects').textContent = projects.length;
+
+            if (projects.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="icon"><i class="fas fa-folder-open"></i></div>
+                                <h4>No Projects Yet</h4>
+                                <p>Create your first project for a client.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = projects.map(p => `
+                <tr>
+                    <td>
+                        <div style="font-weight:600;">${p.project_name || 'Unnamed Project'}</div>
+                    </td>
+                    <td>
+                        <div class="client-cell">
+                            <div class="av">${p.client_name ? p.client_name.substring(0, 2).toUpperCase() : '??'}</div>
+                            <span class="name">${p.client_name || 'Unknown'}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="progress-bar">
+                                <div class="fill" style="width:${p.progress || 0}%;"></div>
+                            </div>
+                            <span style="font-size:12px;font-weight:600;color:#5b6478;">${p.progress || 0}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${p.status || 'pending'}">
+                            ${p.status || 'Pending'}
+                        </span>
+                    </td>
+                    <td>${p.created_at ? new Date(p.created_at).toLocaleDateString() : '-'}</td>
+                    <td style="text-align:center;">
+                        <button class="action-btn" onclick="viewProject(${p.id})" title="View">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn" onclick="deleteProject(${p.id},'${(p.project_name||'').replace(/'/g,"'")}')" title="Delete" style="color:#c00;" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ============================================
+        // SEARCH
+        // ============================================
+        function filterProjects() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allProjects.filter(p => 
+                (p.project_name && p.project_name.toLowerCase().includes(query)) ||
+                (p.client_name && p.client_name.toLowerCase().includes(query))
+            );
+            renderProjects(filtered);
+        }
+
+        // ============================================
+        // VIEW PROJECT
+        // ============================================
+        function viewProject(id) {
+            const project = allProjects.find(p => p.id === id); if(project) alert(`📁 ${project.project_name}\nClient: ${project.client_name||'N/A'}\nStatus: ${project.status}\nStage: ${project.current_stage}`);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadProjects);
+    </script>
+
+    <!-- Create Project Modal -->
+    <div id="createProjectModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:20px;padding:32px;width:460px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+            <h2 style="margin-bottom:20px;font-size:20px;">Create New Project</h2>
+            <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:600;color:#5b6478;display:block;margin-bottom:6px;">Select Client *</label>
+                <select id="newProjectClient" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid #ddd;font-size:14px;outline:none;">
+                    <option value="">-- Select a client --</option>
+                </select>
+            </div>
+            <div style="margin-bottom:14px;">
+                <label style="font-size:13px;font-weight:600;color:#5b6478;display:block;margin-bottom:6px;">Project Name *</label>
+                <input type="text" id="newProjectName" placeholder="e.g. Brand Identity Package" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid #ddd;font-size:14px;outline:none;">
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="font-size:13px;font-weight:600;color:#5b6478;display:block;margin-bottom:6px;">Description</label>
+                <textarea id="newProjectDesc" placeholder="Brief description..." rows="3" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid #ddd;font-size:14px;outline:none;resize:vertical;"></textarea>
+            </div>
+            <div id="createProjectMsg" style="margin-bottom:12px;font-size:13px;"></div>
+            <div style="display:flex;gap:10px;">
+                <button onclick="closeCreateModal()" style="flex:1;padding:12px;border-radius:10px;border:1px solid #ddd;background:#f5f5f5;font-weight:600;cursor:pointer;">Cancel</button>
+                <button onclick="createProject()" id="createProjectBtn" style="flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#7b6ef0,#9b76f0);color:#fff;font-weight:600;cursor:pointer;">Create Project</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CREATE PROJECT MODAL
+        // ============================================
+        async function openCreateModal() {
+            document.getElementById('createProjectModal').style.display = 'flex';
+            document.getElementById('newProjectName').value = '';
+            document.getElementById('newProjectDesc').value = '';
+            document.getElementById('createProjectMsg').textContent = '';
+
+            // Load clients into dropdown
+            try {
+                const res = await fetch(`${API_BASE}/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                if (res.ok) {
+                    const users = await res.json();
+                    const clients = users.filter(u => u.role === 'client');
+                    const sel = document.getElementById('newProjectClient');
+                    sel.innerHTML = '<option value="">-- Select a client --</option>';
+                    clients.forEach(c => {
+                        sel.innerHTML += `<option value="${c.id}">${c.full_name} (${c.email})</option>`;
+                    });
+                }
+            } catch(e) {}
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createProjectModal').style.display = 'none';
+        }
+
+        async function createProject() {
+            const client_id = document.getElementById('newProjectClient').value;
+            const project_name = document.getElementById('newProjectName').value.trim();
+            const project_description = document.getElementById('newProjectDesc').value.trim();
+            const msg = document.getElementById('createProjectMsg');
+            const btn = document.getElementById('createProjectBtn');
+
+            if (!client_id) { msg.style.color='#c00'; msg.textContent='Please select a client.'; return; }
+            if (!project_name) { msg.style.color='#c00'; msg.textContent='Please enter a project name.'; return; }
+
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+            msg.textContent = '';
+
+            try {
+                const res = await fetch(`${API_BASE}/admin/projects`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`
+                    },
+                    body: JSON.stringify({ client_id: parseInt(client_id), project_name, project_description })
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    msg.style.color = '#1d8d59';
+                    msg.textContent = '✅ Project created successfully!';
+                    setTimeout(() => {
+                        closeCreateModal();
+                        loadProjects();
+                    }, 1000);
+                } else {
+                    msg.style.color = '#c00';
+                    msg.textContent = '❌ ' + (result.error || 'Failed to create project');
+                    btn.disabled = false;
+                    btn.textContent = 'Create Project';
+                }
+            } catch(e) {
+                msg.style.color = '#c00';
+                msg.textContent = '❌ Connection error';
+                btn.disabled = false;
+                btn.textContent = 'Create Project';
+            }
+        }
+
+        async function deleteProject(id, name) {
+            if (!confirm(`Delete project "${name}"?\nThis will permanently remove all data. Cannot be undone.`)) return;
+            try {
+                const res = await fetch(`${API_BASE}/admin/projects/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${getToken()}` }
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    showToast('✅ Project deleted successfully');
+                    loadProjects();
+                } else {
+                    showToast('❌ ' + (result.error || 'Delete failed'));
+                }
+            } catch(e) {
+                showToast('❌ Connection error');
+            }
+        }
+
+        // Close modal on backdrop click
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('createProjectModal');
+            if (e.target === modal) closeCreateModal();
+        });
+</script>
+</body>
+</html>
